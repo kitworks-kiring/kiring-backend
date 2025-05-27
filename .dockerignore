@@ -1,6 +1,4 @@
 .git
 .github
 .idea
-build/
-.gradle/
 # 기타 로컬 설정 파일 등
