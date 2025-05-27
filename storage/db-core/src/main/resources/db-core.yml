@@ -74,9 +74,9 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${storage.database.core-db.url}
-      username: ${storage.database.core-db.username}
-      password: ${storage.database.core-db.password}
+      jdbc-url: jdbc:mysql://${DB_HOST}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
       maximum-pool-size: 5
       connection-timeout: 1100
       keepalive-time: 30000

@@ -82,13 +82,16 @@ jobs:
             sudo docker rm kiring-app || true
 
             echo "Running new container with image: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+            echo "DB HOST : ${{ secrets.DB_HOST }}"
+            echo "DB USERNAME : ${{ secrets.DB_USERNAME }}"
+            echo "DB PASSWORD : ${{ secrets.DB_PASSWORD }}"
             sudo docker run -d \
               -p 8080:8080 \
               --name kiring-app \
               -e SPRING_PROFILES_ACTIVE=dev \
-              -e STORAGE_DATABASE_CORE-DB_URL=${{ secrets.DB_HOST }} \
-              -e STORAGE_DATABASE_CORE-DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e STORAGE_DATABASE_CORE-DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               --restart unless-stopped \
               ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
