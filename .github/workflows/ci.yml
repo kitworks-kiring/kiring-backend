@@ -51,7 +51,7 @@ jobs:
     name: Deploy to EC2
     needs: build-and-push-to-dockerhub
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 
     steps:
       - name: Deploy to EC2 instance
