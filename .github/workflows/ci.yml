@@ -61,6 +61,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 
     steps:
+      - name: Download telnet
+        run: |
+          sudo apt-get install -y telnet
+
       - name: Deploy to EC2 instance
           # 이전 잡의 outputs를 이 스텝의 환경 변수로 설정합니다.
         env:
