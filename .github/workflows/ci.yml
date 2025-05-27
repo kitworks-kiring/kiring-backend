@@ -48,7 +48,7 @@ jobs:
 
           # Jib Gradle 플러그인을 사용하여 이미지 빌드 및 Docker Hub로 직접 푸시
           # Jib은 이전 docker/login-action을 통해 생성된 Docker config 파일을 사용하여 인증합니다.
-          ./gradlew :core:jib \
+          ./gradlew :core:core-api:jib \
             -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
             -Djib.to.tags=latest \
             -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev # 필요시 프로파일 설정
