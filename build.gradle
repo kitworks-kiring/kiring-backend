@@ -81,8 +81,7 @@ subprojects {
 jib {
     // Dockerfile 없이 이미지를 빌드합니다.
     from {
-//        image = "eclipse-temurin:21-jre-jammy" // Spring Boot 앱을 실행할 기반 JRE 이미지
-         image = "amazoncorretto:21-alpine-jre" // 다른 JRE 이미지 옵션
+        image = "eclipse-temurin:21-jre-jammy" // Spring Boot 앱을 실행할 기반 JRE 이미지
     }
     to {
         // 타겟 이미지 이름은 CI/CD 파이프라인에서 동적으로 설정합니다.
