@@ -1,30 +1,90 @@
-name: CI
+name: Deploy Spring Boot App to EC2 (Jib to Docker Hub)
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
+    branches: [ "develop" ]
 
 jobs:
-  build:
+  build-and-push-to-dockerhub:
+    name: Build and Push Jib Image to Docker Hub
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'adopt'
-      - name: Lint
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          arguments: checkFormat
-      - name: Test
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }} # Docker Hub Access Token 사용 권장
+
+      - name: Define Image Name and Tag
+        id: image_def
+        run: |
+          IMAGE_NAME="xoals6536/kiring-api" # build.gradle의 jib.to.image와 일치 (사용자명 부분)
+          IMAGE_TAG="latest" # 커밋 SHA를 태그로 사용 (또는 원하는 태그)
+          echo "DOCKER_IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_NAME_LATEST=${IMAGE_NAME}:latest" >> $GITHUB_ENV
+
+      - name: Build and push Jib image to Docker Hub
+        run: |
+          echo "Building and pushing image: ${{ env.DOCKER_IMAGE_NAME_WITH_TAG }}"
+          echo "Also tagging as: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+          # Jib Gradle 플러그인을 사용하여 이미지 빌드 및 Docker Hub로 직접 푸시
+          # Jib은 이전 docker/login-action을 통해 생성된 Docker config 파일을 사용하여 인증합니다.
+          ./gradlew jib \
+            -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
+            -Djib.to.tags=latest \
+            -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev # 필요시 프로파일 설정
+
+  deploy-to-ec2:
+    name: Deploy to EC2
+    needs: build-and-push-to-dockerhub
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          arguments: test
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            echo "Target image for deployment: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+
+            # Docker Hub 리포지토리가 private인 경우 EC2 인스턴스에서 docker login이 되어 있어야 합니다.
+            # 예: sudo docker login -u YOUR_DOCKERHUB_USERNAME -p YOUR_DOCKERHUB_TOKEN
+            # 이 부분은 EC2 인스턴스에 미리 설정해두거나, 보안상 주의하여 처리해야 합니다.
+            # 공개 리포지토리라면 로그인 필요 없음.
+            sudo docker login -u xoals6536 -p xoals1004!!
+            echo "Pulling latest image from Docker Hub: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+            sudo docker pull ${{ env.DOCKER_IMAGE_NAME_LATEST }}
+
+            echo "Stopping and removing old container (if exists)"
+            sudo docker stop kiring-app || true
+            sudo docker rm kiring-app || true
+
+            echo "Running new container with image: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+            sudo docker run -d \
+              -p 8080:8080 \
+              --name kiring-app \
+              -e SPRING_PROFILES_ACTIVE=dev \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              --restart unless-stopped \
+              ${{ env.DOCKER_IMAGE_NAME_LATEST }}
+
+            echo "Cleaning up old Docker images (optional)"
+            sudo docker image prune -af

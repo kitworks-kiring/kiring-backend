@@ -4,6 +4,7 @@ plugins {
     id 'io.spring.dependency-management'
     id 'io.spring.javaformat' apply(false)
     id 'org.asciidoctor.jvm.convert' apply(false)
+    id("com.google.cloud.tools.jib") version "3.4.2" // Jib 플러G인 버전 (최신 버전 확인)
 }
 
 apply from: 'lint.gradle'
@@ -74,4 +75,36 @@ subprojects {
     tasks.named('asciidoctor') {
         dependsOn restDocsTest
     }
+}
+
+// Jib 플러그인 설정
+jib {
+    // Dockerfile 없이 이미지를 빌드합니다.
+    from {
+//        image = "eclipse-temurin:21-jre-jammy" // Spring Boot 앱을 실행할 기반 JRE 이미지
+         image = "amazoncorretto:21-alpine-jre" // 다른 JRE 이미지 옵션
+    }
+    to {
+        // 타겟 이미지 이름은 CI/CD 파이프라인에서 동적으로 설정합니다.
+        image = 'xoals6536/kiring-api:latest' // ECR 레지스트리 URL과 이미지 이름
+        tags = ['latest']
+    }
+    container {
+        // Spring Boot 애플리케이션의 메인 클래스 (Jib이 보통 자동으로 감지)
+         mainClass = "io.dodn.springboot.CoreApiApplication" // 필요시 명시
+
+        // 애플리케이션이 사용하는 포트
+        ports = ['8080']  // Spring Boot 기본 포트
+
+        // JVM 옵션 설정
+        jvmFlags = ['-Xms256m', '-Xmx512m', '-Dspring.profiles.active=dev'] // 예시: 프로덕션 프로파일 활성화
+
+        // 컨테이너 내 환경 변수 설정 (주의: 비밀 값은 여기에 넣지 마세요)
+        // environment = mapOf("MY_ENV_VAR" to "my_value")
+
+        // 컨테이너 실행 유저 (기본은 root, 필요시 변경)
+        // user = "1000:1000" // 예: non-root 유저
+    }
+    // ECR 사용 시, AWS 자격 증명이 환경에 설정되어 있으면 Jib이 자동으로 사용합니다.
+    // (GitHub Actions에서 aws-actions/configure-aws-credentials 사용)
 }
