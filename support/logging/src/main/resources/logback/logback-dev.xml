@@ -16,6 +16,17 @@
         <minimumEventLevel>WARN</minimumEventLevel>
         <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
     </appender>
+<!--    로그 저장 file  -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/app/logs/kiring-api.log</file> <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <fileNamePattern>/app/logs/kiring-api.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <maxHistory>30</maxHistory>
+    </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
 
     <logger name="org.springframework" level="WARN"/>
     <logger name="io.dodn.springboot" level="INFO"/>
@@ -23,5 +34,6 @@
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="SENTRY"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>
