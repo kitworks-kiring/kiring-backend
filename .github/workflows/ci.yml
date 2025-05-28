@@ -61,10 +61,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 
     steps:
-      - name: Download telnet
-        run: |
-          sudo apt-get install -y telnet
-
       - name: Deploy to EC2 instance
           # 이전 잡의 outputs를 이 스텝의 환경 변수로 설정합니다.
         env:
@@ -86,16 +82,13 @@ jobs:
             sudo docker rm kiring-app || true
 
             echo "Running new container with image: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
-            echo "DB HOST : ${{ secrets.DB_HOST }}"
-            echo "DB USERNAME : ${{ secrets.DB_USERNAME }}"
-            echo "DB PASSWORD : ${{ secrets.DB_PASSWORD }}"
             sudo docker run -d \
               -p 8080:8080 \
               --name kiring-app \
               -e SPRING_PROFILES_ACTIVE=dev \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_HOST="taemindb.c50086io4til.ap-northeast-2.rds.amazonaws.com:3306/kiring" \
+              -e DB_USERNAME="admin" \
+              -e DB_PASSWORD="Rlaxoals1004!!" \
               --restart unless-stopped \
               ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
