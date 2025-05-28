@@ -91,7 +91,7 @@ jobs:
               -e DB_HOST="${{ secrets.DB_HOST }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -v /home/ubuntu/kiring-api/logs:/app/logs \ 
+              -v /home/ubuntu/kiring-api/logs:/app/logs \
               --restart unless-stopped \
               ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
