@@ -17,6 +17,13 @@ server:
       max: 600
       min-spare: 100
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /v3/api-docs
+
 ---
 spring.config.activate.on-profile: local
 
