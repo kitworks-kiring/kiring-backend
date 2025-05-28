@@ -24,7 +24,7 @@ jib {
         ports = ['8080']  // Spring Boot 기본 포트
 
         // JVM 옵션 설정
-        jvmFlags = ['-Xms256m', '-Xmx512m', '-Dspring.profiles.active=dev'] // 예시: 프로덕션 프로파일 활성화
+        jvmFlags = ['-Xms129m', '-Xmx384m', '-Dspring.profiles.active=dev'] // 예시: 프로덕션 프로파일 활성화
 
         // 컨테이너 내 환경 변수 설정 (주의: 비밀 값은 여기에 넣지 마세요)
         // environment = mapOf("MY_ENV_VAR" to "my_value")
