@@ -47,7 +47,7 @@ public class Member extends BaseEntity {
     @Column(name = "github_id")
     private String githubId;
 
-    @Column(name = "is_mployed")
+    @Column(name = "is_employed")
     private boolean isEmployed;
 
     @Column(name = "is_admin")
