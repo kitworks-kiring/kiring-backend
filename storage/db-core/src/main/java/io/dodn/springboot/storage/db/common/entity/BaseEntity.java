@@ -28,6 +28,11 @@ public abstract class BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
+    /**
+     * 엔티티의 기본 키 값을 반환합니다.
+     *
+     * @return 엔티티의 고유 식별자
+     */
     public Long getId() {
         return id;
     }
