@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ExampleService {
+
     private final ExampleRepository exampleRepository;
 
     public ExampleService(final ExampleRepository exampleRepository) {
@@ -14,7 +15,7 @@ public class ExampleService {
 
     public ExampleResult processExample(ExampleData exampleData) {
         final ExampleEntity entity = exampleRepository.findById(1L)
-                .orElseThrow(() -> new IllegalArgumentException("Example not found with id: " + exampleData.value()));
+            .orElseThrow(() -> new IllegalArgumentException("Example not found with id: " + exampleData.value()));
         return new ExampleResult(exampleData.value());
     }
 

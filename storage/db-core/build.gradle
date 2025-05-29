@@ -1,6 +1,7 @@
 dependencies {
     implementation project(':core:core-enum')
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3' // 현재 안정적인 최신 버전 (2025년 5월 기준, Maven Central에서 확인)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     api 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'com.h2database:h2'

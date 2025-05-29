@@ -10,10 +10,13 @@ import java.util.Optional;
 
 @Repository
 public class ExampleRepositoryAdapter implements ExampleRepository {
+
     private final ExampleJpaRepository exampleJpaRepository;
+
     private final ExampleMybatisRepository exampleMybatisRepository;
 
-    public ExampleRepositoryAdapter(final ExampleJpaRepository exampleJpaRepository, final ExampleMybatisRepository exampleMybatisRepository) {
+    public ExampleRepositoryAdapter(final ExampleJpaRepository exampleJpaRepository,
+            final ExampleMybatisRepository exampleMybatisRepository) {
         this.exampleJpaRepository = exampleJpaRepository;
         this.exampleMybatisRepository = exampleMybatisRepository;
     }
@@ -27,6 +30,5 @@ public class ExampleRepositoryAdapter implements ExampleRepository {
     public int updateExampleColumn(final Long id, final String exampleColumn) {
         return exampleMybatisRepository.updateExampleColumn(id, exampleColumn);
     }
-
 
 }

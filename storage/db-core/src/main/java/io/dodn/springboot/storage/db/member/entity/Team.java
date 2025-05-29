@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "TEAM")
 public class Team extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // DB가 ID 자동 생성
     @Column(name = "team_id")
@@ -30,6 +31,10 @@ public class Team extends BaseEntity {
         this.code = code;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -37,6 +42,5 @@ public class Team extends BaseEntity {
     public String getDescription() {
         return code;
     }
-
 
 }
