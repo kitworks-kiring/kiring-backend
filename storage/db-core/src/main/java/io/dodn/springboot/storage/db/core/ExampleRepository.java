@@ -1,7 +1,13 @@
 package io.dodn.springboot.storage.db.core;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.dodn.springboot.storage.db.core.entity.ExampleEntity;
 
-public interface ExampleRepository extends JpaRepository<ExampleEntity, Long> {
+import java.util.Optional;
+
+public interface ExampleRepository {
+
+    Optional<ExampleEntity> findById(Long id);
+
+    int updateExampleColumn(Long id, String exampleColumn);
 
 }
