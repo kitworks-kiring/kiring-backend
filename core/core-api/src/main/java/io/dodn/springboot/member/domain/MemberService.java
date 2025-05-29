@@ -40,7 +40,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public List<Member> findAllMemberByTeamId(final Long teamId) {
-        return memberRepository.findByTeamId(teamId);
+        return memberRepository.findMembersAndFetchTeamByTeamId(teamId);
     }
 
 }

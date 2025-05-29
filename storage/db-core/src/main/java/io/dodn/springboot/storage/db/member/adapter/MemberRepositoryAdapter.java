@@ -61,10 +61,13 @@ public class MemberRepositoryAdapter implements MemberRepository {
 
     @Override
     public List<Member> findByTeamId(final Long teamId) {
-        if (teamId == null) {
-            throw new IllegalArgumentException("Team ID must not be null");
-        }
         return memberJpaRepository.findByTeamId(teamId);
     }
+
+    @Override
+    public List<Member> findMembersAndFetchTeamByTeamId(final Long teamId) {
+        return memberJpaRepository.findMembersAndFetchTeamByTeamId(teamId);
+    }
+
 
 }

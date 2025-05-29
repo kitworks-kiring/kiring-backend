@@ -21,4 +21,5 @@ public interface MemberRepository {
 
     List<Member> findByTeamId(Long teamId);
 
+    List<Member> findMembersAndFetchTeamByTeamId(Long teamId);
 }
