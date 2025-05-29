@@ -4,13 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.dodn.springboot.storage.db.CoreDbContextTest;
 
+import io.dodn.springboot.storage.db.core.entity.ExampleEntity;
+import io.dodn.springboot.storage.db.core.repository.ExampleJpaRepository;
 import org.junit.jupiter.api.Test;
 
 public class ExampleRepositoryIT extends CoreDbContextTest {
 
-    private final ExampleRepository exampleRepository;
+    private final ExampleJpaRepository exampleRepository;
 
-    public ExampleRepositoryIT(ExampleRepository exampleRepository) {
+    public ExampleRepositoryIT(ExampleJpaRepository exampleRepository) {
         this.exampleRepository = exampleRepository;
     }
 

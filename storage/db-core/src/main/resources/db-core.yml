@@ -6,6 +6,22 @@ spring:
     properties:
       hibernate.default_batch_fetch_size: 100
 
+mybatis:
+  # XML 매퍼 파일의 위치를 지정합니다. (매우 중요)
+  # 클래스패스 기준으로 여러 경로를 지정할 수 있습니다.
+  mapper-locations: classpath:/mappers/**/*.xml # src/main/resources/mappers 폴더 아래 모든 xml 파일
+  # 또는 특정 파일 지정: classpath:/mappers/YourEntityMapper.xml, classpath:/mappers/AnotherMapper.xml
+  # (선택) DTO 클래스들의 패키지를 지정하여 XML에서 짧은 별칭으로 사용할 수 있게 합니다.
+#  type-aliases-package: com.kiring.dto # 실제 DTO 패키지 경로로 변경
+  # (선택) MyBatis의 전역 설정을 변경할 수 있습니다.
+  configuration:
+    map-underscore-to-camel-case: true # DB 컬럼의 스네이크 케이스(예: user_id)를 자바 객체의 카멜 케이스(예: userId)로 자동 매핑
+      # call-setters-on-nulls: true
+      # jdbc-type-for-null: 'NULL' # NULL 값 전달 시 JDBC 타입 명시 (보통 VARCHAR)
+      # default-fetch-size: 100
+      # default-statement-timeout: 30 # 초 단위
+      # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # MyBatis 내부 SQL 로깅 (개발 시 유용)
+
 ---
 spring.config.activate.on-profile: local
 
