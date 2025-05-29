@@ -16,15 +16,4 @@ import org.springframework.context.annotation.Configuration;
                 @Server(url = "https://example.com", description = "Production Server") })
 @Configuration
 public class OpenApiConfig {
-
-    // 필요하다면 여기에 @Bean으로 GroupedOpenApi 등을 추가로 정의하여 API 그룹핑 등을 할 수 있습니다.
-    /*
-     * @Bean public GroupedOpenApi publicApi() { return GroupedOpenApi.builder()
-     * .group("public-apis") .pathsToMatch("/api/public/**") .build(); }
-     *
-     * @Bean public GroupedOpenApi adminApi() { return GroupedOpenApi.builder()
-     * .group("admin-apis") .pathsToMatch("/api/admin/**") // .addOpenApiCustomizer(...)
-     * // 더 세부적인 커스터마이징 .build(); }
-     */
-
 }

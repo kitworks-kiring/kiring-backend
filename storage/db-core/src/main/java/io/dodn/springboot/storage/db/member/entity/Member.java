@@ -32,25 +32,25 @@ public class Member extends BaseEntity {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "kakako_id")
-    private String kakakoId;
+    @Column(name = "kakao_id")
+    private String kakaoId;
 
     @Column(name = "nickname")
     private String nickname;
 
-    @Column(name = "profileImageUrl")
+    @Column(name = "profile_image_url")
     private String profileImageUrl;
 
     @Column(name = "birthday")
     private LocalDate birthday;
 
-    @Column(name = "githubId")
+    @Column(name = "github_id")
     private String githubId;
 
-    @Column(name = "isEmployed")
+    @Column(name = "is_mployed")
     private boolean isEmployed;
 
-    @Column(name = "isAdmin")
+    @Column(name = "is_admin")
     private boolean isAdmin;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,12 +61,12 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
-    public Member(String name, String email, String phone, String kakakoId, String nickname, String profileImageUrl,
-            LocalDate birthday, String githubId, boolean isEmployed, boolean isAdmin, Team team) {
+    public Member(String name, String email, String phone, String kakaoId, String nickname, String profileImageUrl,
+                  LocalDate birthday, String githubId, boolean isEmployed, boolean isAdmin, Team team) {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.kakakoId = kakakoId;
+        this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.birthday = birthday;
@@ -92,8 +92,8 @@ public class Member extends BaseEntity {
         return phone;
     }
 
-    public String getKakakoId() {
-        return kakakoId;
+    public String getKakaoId() {
+        return kakaoId;
     }
 
     public String getNickname() {
@@ -124,8 +124,8 @@ public class Member extends BaseEntity {
         return team;
     }
 
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@"
-            + "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 

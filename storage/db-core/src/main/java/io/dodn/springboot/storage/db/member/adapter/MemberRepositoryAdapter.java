@@ -19,16 +19,7 @@ public class MemberRepositoryAdapter implements MemberRepository {
 
     @Override
     public Member save(final Member member) {
-        if (member.getId() == null) {
-            return memberJpaRepository.save(member);
-        }
-        else {
-            return memberJpaRepository.findById(member.getId()).map(existingMember -> {
-                existingMember.changeName(member.getName());
-                existingMember.changeEmail(member.getEmail());
-                return memberJpaRepository.save(existingMember);
-            }).orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + member.getId()));
-        }
+        return memberJpaRepository.save(member);
     }
 
     @Override
@@ -67,6 +58,11 @@ public class MemberRepositoryAdapter implements MemberRepository {
     @Override
     public List<Member> findMembersAndFetchTeamByTeamId(final Long teamId) {
         return memberJpaRepository.findMembersAndFetchTeamByTeamId(teamId);
+    }
+
+    @Override
+    public long count() {
+        return memberJpaRepository.count();
     }
 
 

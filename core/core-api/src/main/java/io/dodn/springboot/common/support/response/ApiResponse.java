@@ -25,11 +25,11 @@ public class ApiResponse<S> {
         return new ApiResponse<>(ResultType.SUCCESS, data, null);
     }
 
-    public static ApiResponse<?> error(ErrorType error) {
+    public static <T> ApiResponse<T> error(ErrorType error) {
         return new ApiResponse<>(ResultType.ERROR, null, new ErrorMessage(error));
     }
 
-    public static ApiResponse<?> error(ErrorType error, Object errorData) {
+    public static <T,E> ApiResponse<T> error(ErrorType error, E errorData) {
         return new ApiResponse<>(ResultType.ERROR, null, new ErrorMessage(error, errorData));
     }
 

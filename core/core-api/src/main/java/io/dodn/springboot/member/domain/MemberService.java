@@ -35,7 +35,7 @@ public class MemberService {
     }
 
     public Long countMembers() {
-        return (long) memberRepository.findAll().size();
+        return memberRepository.count();
     }
 
     @Transactional(readOnly = true)

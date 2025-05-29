@@ -25,7 +25,7 @@ public interface MemberDocs {
             tags = { "Member Management" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "404", description = "팀이 존재하지 않음") })
-    public io.dodn.springboot.common.support.response.ApiResponse<MembersResponse> getMemberByTeam(
+    io.dodn.springboot.common.support.response.ApiResponse<MembersResponse> getMemberByTeam(
             @RequestParam("teamId") final Long teamId);
 
     @Operation(summary = "회원 수 조회", description = "현재 등록된 회원의 수를 조회하는 엔드포인트입니다.", tags = { "Member Management" })

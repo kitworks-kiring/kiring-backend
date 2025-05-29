@@ -20,7 +20,7 @@ public class Team extends BaseEntity {
     @Column(name = "team_name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "", nullable = false, length = 100)
+    @Column(name = "code", nullable = false, length = 100)
     private String code;
 
     protected Team() {
@@ -39,7 +39,7 @@ public class Team extends BaseEntity {
         return name;
     }
 
-    public String getDescription() {
+    public String getCode() {
         return code;
     }
 
