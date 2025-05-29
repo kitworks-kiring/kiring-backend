@@ -4,6 +4,7 @@ import io.dodn.springboot.common.support.error.CoreException;
 import io.dodn.springboot.common.support.error.ErrorType;
 import io.dodn.springboot.common.support.response.ApiResponse;
 
+import io.dodn.springboot.member.exception.NotFoundMemberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -31,4 +32,9 @@ public class ApiControllerAdvice {
         return new ResponseEntity<>(ApiResponse.error(ErrorType.DEFAULT_ERROR), ErrorType.DEFAULT_ERROR.getStatus());
     }
 
+    @ExceptionHandler(NotFoundMemberException.class)
+    public ResponseEntity<ApiResponse<?>> handleNotFoundMemberException(NotFoundMemberException e) {
+        log.warn("NotFoundMemberException : {}", e.getMessage(), e);
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.NOT_FOUND_MEMBER), ErrorType.NOT_FOUND_MEMBER.getStatus());
+    }
 }
