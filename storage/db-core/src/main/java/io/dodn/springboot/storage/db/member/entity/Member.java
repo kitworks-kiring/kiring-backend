@@ -159,4 +159,31 @@ public class Member extends BaseEntity {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
+    public void updateProfile(final Member member) {
+        if (member.name != null && !member.name.isBlank()) {
+            this.name = member.name;
+        }
+        if (member.email != null && !member.email.isBlank()) {
+            this.email = member.email;
+        }
+        if (member.phone != null && !member.phone.isBlank()) {
+            this.phone = member.phone;
+        }
+        if (member.kakaoId != null && !member.kakaoId.isBlank()) {
+            this.kakaoId = member.kakaoId;
+        }
+        if (member.nickname != null && !member.nickname.isBlank()) {
+            this.nickname = member.nickname;
+        }
+        if (member.profileImageUrl != null && !member.profileImageUrl.isBlank()) {
+            this.profileImageUrl = member.profileImageUrl;
+        }
+        if (member.birthday != null) {
+            this.birthday = member.birthday;
+        }
+        if (member.githubId != null && !member.githubId.isBlank()) {
+            this.githubId = member.githubId;
+        }
+        this.isEmployed = member.isEmployed;
+    }
 }
