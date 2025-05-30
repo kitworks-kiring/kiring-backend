@@ -1,11 +1,13 @@
 package io.dodn.springboot.common.swagger;
 
+import io.dodn.springboot.member.controller.request.UpdateMemberRequest;
 import io.dodn.springboot.member.controller.response.MemberResponse;
 import io.dodn.springboot.member.controller.response.MembersResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 public interface MemberDocs {
@@ -36,5 +38,8 @@ public interface MemberDocs {
     @Operation(summary = "회원 정보 수정", description = "특정 회원의 정보를 수정하는 엔드포인트입니다.", tags = { "Member Management" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음") })
-    io.dodn.springboot.common.support.response.ApiResponse<MemberResponse> updateMember();
+    io.dodn.springboot.common.support.response.ApiResponse<MemberResponse> updateMember(
+            @PathVariable("memberId") final Long memberId,
+            @RequestBody UpdateMemberRequest updateMemberRequest
+    );
 }
