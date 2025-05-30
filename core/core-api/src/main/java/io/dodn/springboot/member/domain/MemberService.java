@@ -1,5 +1,6 @@
 package io.dodn.springboot.member.domain;
 
+import io.dodn.springboot.member.exception.NotFoundMemberException;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class MemberService {
 
     public Member findMemberById(Long id) {
         return memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + id));
+            .orElseThrow(() -> new NotFoundMemberException("Member not found with id: " + id));
     }
 
     public void deleteMember(Long id) {
