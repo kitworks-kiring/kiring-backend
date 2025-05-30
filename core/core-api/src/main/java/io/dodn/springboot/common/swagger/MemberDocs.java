@@ -33,4 +33,8 @@ public interface MemberDocs {
             @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음") })
     io.dodn.springboot.common.support.response.ApiResponse<Long> getMemberCount();
 
+    @Operation(summary = "회원 정보 수정", description = "특정 회원의 정보를 수정하는 엔드포인트입니다.", tags = { "Member Management" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음") })
+    io.dodn.springboot.common.support.response.ApiResponse<MemberResponse> updateMember();
 }
