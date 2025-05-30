@@ -44,4 +44,13 @@ public class MemberService {
         return memberRepository.findMembersAndFetchTeamByTeamId(teamId);
     }
 
+    @Transactional
+    public Member updateMember(final Long memberId, final Member member) {
+        Member existingMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException("ID가 " + memberId + "인 멤버를 찾을 수 없습니다."));
+
+        existingMember.updateProfile(member);
+
+        return memberRepository.save(existingMember);
+    }
 }
