@@ -12,8 +12,11 @@ import org.springframework.context.annotation.Configuration;
                 contact = @Contact(name = "Kiring팀", email = "kiring.dev@gmail.com",
                         url = "https://kiring.example.com"),
                 license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html")),
-        servers = { @Server(url = "http://13.124.210.210/", description = "Development Server"),
-                @Server(url = "localhost:8080/", description = "Localhost Server") })
+        servers = {
+                @Server(url = "http://13.124.210.210/", description = "Development Server"),
+                @Server(url = "http://localhost:8080/", description = "Localhost Server")
+        }
+)
 @Configuration
 public class OpenApiConfig {
 }
