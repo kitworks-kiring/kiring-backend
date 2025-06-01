@@ -15,5 +15,12 @@ public interface PlaneDocs {
             @RequestBody SendMessageRequest request
     );
 
+    @Operation(summary = "쪽지 읽음 처리", description = "특정 회원이 쪽지를 읽음 처리하는 엔드포인트입니다.", tags = { "Plane Management" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "404", description = "쪽지가 존재하지 않음") })
+    io.dodn.springboot.common.support.response.ApiResponse<?> readMessage(
+            @RequestBody io.dodn.springboot.plane.controller.request.ReadMessageRequest request
+    );
+
 
     }
