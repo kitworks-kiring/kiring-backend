@@ -20,4 +20,6 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m JOIN FETCH m.team t WHERE t.id = :teamId")
     List<Member> findMembersAndFetchTeamByTeamId(@Param("teamId") Long teamId);
+
+    Optional<Member> findByPhone(String s);
 }
