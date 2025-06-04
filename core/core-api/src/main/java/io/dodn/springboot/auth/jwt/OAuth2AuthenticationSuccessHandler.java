@@ -13,14 +13,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final ObjectMapper objectMapper; // ★★★ ObjectMapper 주입 ★★★
     private final MemberService memberService;
 
-    private final String frontendTargetUrl = "http://localhost:3000/auth/oauth2/success"; // 또는 다른 프론트엔드 경로
+    private final String frontendTargetUrl = "http://localhost:3000/login/callback"; // 또는 다른 프론트엔드 경로
 
     public OAuth2AuthenticationSuccessHandler(final JwtTokenProvider jwtTokenProvider, final ObjectMapper objectMapper, final MemberService memberService) {
         this.jwtTokenProvider = jwtTokenProvider;
@@ -63,14 +62,21 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             final TokenInfo tokenInfo = jwtTokenProvider.generateToken(String.valueOf(member.getId()), authorities);
             log.info("애플리케이션 JWT 발급: {}", tokenInfo);
 
-            // --- JSON 응답으로 직접 TokenInfo 보내기 ---
-            response.setStatus(HttpStatus.OK.value()); // HTTP 상태 코드 200 OK
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE); // Content Type을 JSON으로 설정
-            response.setCharacterEncoding("UTF-8"); // 문자 인코딩 설정
+//            // --- JSON 응답으로 직접 TokenInfo 보내기 ---
+//            response.setStatus(HttpStatus.OK.value()); // HTTP 상태 코드 200 OK
+//            response.setContentType(MediaType.APPLICATION_JSON_VALUE); // Content Type을 JSON으로 설정
+//            response.setCharacterEncoding("UTF-8"); // 문자 인코딩 설정
+//
+//            // TokenInfo 객체를 JSON 문자열로 변환하여 응답 본문에 작성
+//            objectMapper.writeValue(response.getWriter(), tokenInfo);
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
+                            .queryParam("accessToken", tokenInfo.accessToken())
+                            .queryParam("refreshToken", tokenInfo.refreshToken())
+                            .build().toUriString();
 
-            // TokenInfo 객체를 JSON 문자열로 변환하여 응답 본문에 작성
-            objectMapper.writeValue(response.getWriter(), tokenInfo);
             clearAuthenticationAttributes(request);
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
         } catch (NotFoundMemberException e) {
             ApiResponse<?> errorResponse = ApiResponse.error(ErrorType.OAUTH_LOGIN_FAILED, e.getMessage());
             objectMapper.writeValue(response.getWriter(), errorResponse);
