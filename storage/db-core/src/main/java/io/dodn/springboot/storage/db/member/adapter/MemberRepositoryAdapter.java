@@ -65,5 +65,10 @@ public class MemberRepositoryAdapter implements MemberRepository {
         return memberJpaRepository.count();
     }
 
+    @Override
+    public Optional<Member> findByPhone(final String s) {
+        return memberJpaRepository.findByPhone(s);
+    }
+
 
 }
