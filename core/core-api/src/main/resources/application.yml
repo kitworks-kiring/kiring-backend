@@ -9,6 +9,25 @@ spring:
       - db-core.yml
       - client-example.yml
   web.resources.add-mappings: false
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 9aebe1e49481851b5f2926e02e59500a
+            client-secret: zNvmJgdyPC6arlK2pGiFAfES2xRy0fKk
+            client-authentication-method: client_secret_post
+#            redirect-uri: http://localhost:8080/api/v1/oauth/kakao/callback
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+            client-name: kakao
+            scope: account_email,phone_number,name,profile_nickname
+        provider:
+          kakao:
+            authorization-uri:  https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me # 사용자 정보 가져오는 URI
+            user-name-attribute: id # 사용자 정보 응답에서 사용자 ID로 사용할 속성 이름
 
 server:
   tomcat:
@@ -23,6 +42,17 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     url: /v3/api-docs
+jwt:
+  secret: vG8X7sFJ2jM6Q/Z7pTh5CZGq7Q1JmJj2k8Q6v5Ojlmo= # 32바이트 이상
+  token-validity-in-seconds: 3600 # 1시간 (초 단위)
+
+
+
+# 카카오 OAuth
+#  KAKAO_CLIENT_ID=9aebe1e49481851b5f2926e02e59500a
+#  KAKAO_CLIENT_SECRET=
+#  NEXTAUTH_URL=http://localhost:3000/
+#  NEXTAUTH_SECRET=fE5qmH9A6bafTEF6JPE37kAPYmvYEnRArO/VDQJdaKI=
 
 ---
 spring.config.activate.on-profile: local

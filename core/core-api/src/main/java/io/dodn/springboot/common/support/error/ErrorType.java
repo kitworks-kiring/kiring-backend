@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 public enum ErrorType {
 
     DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error has occurred.", LogLevel.ERROR),
-    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "Member not found.", LogLevel.WARN);
+    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "Member not found.", LogLevel.WARN),
+    FAILED_KAKAO(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "Failed to retrieve Kakao token.", LogLevel.ERROR),
+    OAUTH_LOGIN_FAILED(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "Not Found Phone Number", LogLevel.ERROR);
 
     private final HttpStatus status;
 

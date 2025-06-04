@@ -4,9 +4,6 @@ import io.dodn.springboot.storage.db.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -17,13 +14,7 @@ import java.util.regex.Pattern;
 @Entity
 @Table(name = "MEMBER")
 public class Member extends BaseEntity {
-
-    @Id
-    @Column(name = "member_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "member_name")
+    @Column(name = "name")
     private String name;
 
     @Column(name = "email")
@@ -76,9 +67,6 @@ public class Member extends BaseEntity {
         this.team = team;
     }
 
-    public Long getId() {
-        return id;
-    }
 
     public String getName() {
         return name;
@@ -159,4 +147,31 @@ public class Member extends BaseEntity {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
+    public void updateProfile(final Member member) {
+        if (member.name != null && !member.name.isBlank()) {
+            this.name = member.name;
+        }
+        if (member.email != null && !member.email.isBlank()) {
+            this.email = member.email;
+        }
+        if (member.phone != null && !member.phone.isBlank()) {
+            this.phone = member.phone;
+        }
+        if (member.kakaoId != null && !member.kakaoId.isBlank()) {
+            this.kakaoId = member.kakaoId;
+        }
+        if (member.nickname != null && !member.nickname.isBlank()) {
+            this.nickname = member.nickname;
+        }
+        if (member.profileImageUrl != null && !member.profileImageUrl.isBlank()) {
+            this.profileImageUrl = member.profileImageUrl;
+        }
+        if (member.birthday != null) {
+            this.birthday = member.birthday;
+        }
+        if (member.githubId != null && !member.githubId.isBlank()) {
+            this.githubId = member.githubId;
+        }
+        this.isEmployed = member.isEmployed;
+    }
 }

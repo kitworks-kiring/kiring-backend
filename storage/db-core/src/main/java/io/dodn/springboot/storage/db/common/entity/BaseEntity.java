@@ -18,13 +18,13 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
     @CreationTimestamp
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP(0)")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
 
-    @Column
     @UpdateTimestamp
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP(0)")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 

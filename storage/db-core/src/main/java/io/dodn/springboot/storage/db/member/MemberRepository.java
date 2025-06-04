@@ -24,4 +24,6 @@ public interface MemberRepository {
     List<Member> findMembersAndFetchTeamByTeamId(Long teamId);
 
     long count();
+
+    Optional<Member> findByPhone(String s);
 }
