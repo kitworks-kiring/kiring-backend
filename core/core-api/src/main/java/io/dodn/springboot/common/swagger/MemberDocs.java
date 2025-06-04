@@ -1,5 +1,6 @@
 package io.dodn.springboot.common.swagger;
 
+import io.dodn.springboot.common.annotation.LoginUser;
 import io.dodn.springboot.member.controller.request.UpdateMemberRequest;
 import io.dodn.springboot.member.controller.response.MemberResponse;
 import io.dodn.springboot.member.controller.response.MembersResponse;
@@ -12,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public interface MemberDocs {
 
-    @Operation(summary = "회원 정보 조회", description = "특정 회원의 정보를 조회하는 엔드포인트입니다.", tags = { "Member Management" })
+    @Operation(summary = "회원 정보 조회", description = "특정 회원의 정보를 조회하는 엔드포인트입니다.",
+            tags = { "Member Management" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음") })
-    io.dodn.springboot.common.support.response.ApiResponse<MemberResponse> getMemberById(@PathVariable Long memberId);
+    io.dodn.springboot.common.support.response.ApiResponse<MemberResponse> getMemberById(@LoginUser Long memberId);
 
     @Operation(summary = "팀과 함께 회원 목록 조회", description = "현재 등록된 회원의 목록을 팀 정보와 함께 조회하는 엔드포인트입니다.",
             tags = { "Member Management" })

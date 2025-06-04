@@ -1,13 +1,14 @@
 package io.dodn.springboot.member.controller;
 
+import io.dodn.springboot.common.annotation.LoginUser;
 import io.dodn.springboot.common.support.response.ApiResponse;
 import io.dodn.springboot.common.swagger.MemberDocs;
 import io.dodn.springboot.member.controller.request.UpdateMemberRequest;
 import io.dodn.springboot.member.controller.response.MemberResponse;
 import io.dodn.springboot.member.controller.response.MembersResponse;
 import io.dodn.springboot.member.domain.MemberService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,9 +23,9 @@ public class MemberController implements MemberDocs {
         this.memberService = memberService;
     }
 
-    @GetMapping("/members/{memberId}")
+    @GetMapping("/members/me")
     public ApiResponse<MemberResponse> getMemberById(
-            @PathVariable("memberId") final Long memberId
+            @Parameter(hidden = true) @LoginUser final Long memberId
     ) {
         return ApiResponse.success(MemberResponse.of(memberService.findMemberById(memberId)));
     }
@@ -48,9 +49,9 @@ public class MemberController implements MemberDocs {
 
     @PutMapping("/members/{memberId}")
     public ApiResponse<MemberResponse> updateMember(
-            @PathVariable("memberId") final Long memberId,
+            @Parameter(hidden = true) @LoginUser final Long memberId,
             @RequestBody UpdateMemberRequest updateMemberRequest
-            ) {
+    ) {
         return ApiResponse.success(MemberResponse.of(memberService.updateMember(memberId, updateMemberRequest.toEntity())));
     }
 
