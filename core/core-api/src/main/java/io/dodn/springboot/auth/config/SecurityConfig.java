@@ -1,5 +1,6 @@
 package io.dodn.springboot.auth.config;
 
+import io.dodn.springboot.auth.jwt.JwtAuthenticationFilter;
 import io.dodn.springboot.auth.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

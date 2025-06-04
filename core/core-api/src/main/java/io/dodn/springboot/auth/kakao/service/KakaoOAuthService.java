@@ -23,9 +23,9 @@ public class KakaoOAuthService {
         this.kakaoUserApiClient = kakaoUserApiClient;
     }
 
-    @Value("${security.oauth2.client.registration.kakao.client-id}")
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
-    @Value("${security.oauth2.client.registration.kakao.redirect-uri}")
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
     private static final String KAKAKO_GRANT_TYPE = "authorization_code";
