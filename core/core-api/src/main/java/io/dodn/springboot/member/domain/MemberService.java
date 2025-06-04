@@ -61,10 +61,14 @@ public class MemberService {
     @Transactional
     public Member findOrCreateMemberByKakaoInfo(KakaoUserInfoResponse kakaoUserInfoResponse){
         log.info(kakaoUserInfoResponse.toString());
-        // TODO 전화번호 반환값 체킹 필요
-        return memberRepository.findByPhone(kakaoUserInfoResponse.kakaoAccount().phoneNumber())
+        log.info(changePhoneNumber(kakaoUserInfoResponse.kakaoAccount().phoneNumber()));
+        return memberRepository.findByPhone(changePhoneNumber(kakaoUserInfoResponse.kakaoAccount().phoneNumber()))
                 .orElseThrow(
                         () -> new NotFoundMemberException("전화번호로 멤버를 찾을 수 없습니다: " + kakaoUserInfoResponse.kakaoAccount().phoneNumber())
                 );
+    }
+
+    private String changePhoneNumber(String phoneNumber) {
+        return "0".concat(phoneNumber.substring(4));
     }
 }

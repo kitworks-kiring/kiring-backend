@@ -2,6 +2,7 @@ package io.dodn.springboot.auth.config;
 
 import io.dodn.springboot.auth.jwt.JwtAuthenticationFilter;
 import io.dodn.springboot.auth.jwt.JwtTokenProvider;
+import io.dodn.springboot.auth.jwt.OAuth2AuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,9 +24,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-    public SecurityConfig(final JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
     }
 
     @Bean
@@ -41,8 +44,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
-                                "oauth2/**", // OAuth2 인증 관련 API 접근 허용
-                                "/api/v1/oauth/kakao/*", // 카카오 OAuth2 로그인 콜백
+                                "/login/oauth2/code/**",
+                                "/oauth2/**", // OAuth2 인증 관련 API 접근 허용
+                                "/login/oauth2/**", // 카카오 OAuth2 로그인 콜백
                                 "/swagger-ui.html", // Swagger UI 접근 허용
                                 "/swagger-ui/**", // Swagger UI 리소스 접근 허용
                                 "/v3/api-docs/**" // Swagger API 문서 접근 허용
@@ -50,9 +54,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .oauth2Login(oauth -> oauth
-                        .redirectionEndpoint(redirection -> redirection
-                        .baseUri("/api/v1/oauth/kakao/callback") // OAuth2 로그인 콜백 URI 설정))
-                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 

@@ -31,13 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (!StringUtils.hasText(token)) {
-            log.info("토큰이 존재하지 않습니다.");
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (StringUtils.hasText(token) || jwtTokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
