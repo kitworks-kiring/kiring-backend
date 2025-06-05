@@ -9,7 +9,7 @@ public enum ErrorType {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_INPUT_VALUE,"입력값이 올바르지 않습니다.", LogLevel.WARN),
     MISSING_REQUEST_PARAMETER(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST,"필수 요청 파라미터가 누락되었습니다.", LogLevel.WARN),
     AUTHORIZATION_DENIED(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, "접근 권한이 없습니다.", LogLevel.WARN),
-    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "요청한 멤버를 찾을 수 없습니다.", LogLevel.INFO),
+    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "가입되지 않은 사용자 입니다.", LogLevel.INFO),
     OAUTH_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED,"OAuth2 로그인에 실패했습니다.", LogLevel.WARN),
     DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR,"서버 내부 오류가 발생했습니다.", LogLevel.ERROR);
 
