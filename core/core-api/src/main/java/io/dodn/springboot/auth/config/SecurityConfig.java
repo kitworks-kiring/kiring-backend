@@ -2,6 +2,7 @@ package io.dodn.springboot.auth.config;
 
 import io.dodn.springboot.auth.jwt.JwtAuthenticationFilter;
 import io.dodn.springboot.auth.jwt.JwtTokenProvider;
+import io.dodn.springboot.auth.jwt.KakaoLogoutSuccessHandler;
 import io.dodn.springboot.auth.jwt.OAuth2AuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,10 +28,12 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler; // 카카오 로그아웃 성공 핸들러
 
-    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
+    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
+        this.kakaoLogoutSuccessHandler = kakaoLogoutSuccessHandler;
     }
 
     @Bean
@@ -51,12 +54,19 @@ public class SecurityConfig {
                                 "/login/oauth2/**", // 카카오 OAuth2 로그인 콜백
                                 "/swagger-ui.html", // Swagger UI 접근 허용
                                 "/swagger-ui/**", // Swagger UI 리소스 접근 허용
-                                "/v3/api-docs/**" // Swagger API 문서 접근 허용
+                                "/v3/api-docs/**", // Swagger API 문서 접근 허용
+                                "/auth/logout" // 로그아웃 경로는 인증된 사용자가 호출할 수 있도록 authenticated()에 두거나,
                         ).permitAll()// API 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2AuthenticationSuccessHandler)
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessHandler(kakaoLogoutSuccessHandler)
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
