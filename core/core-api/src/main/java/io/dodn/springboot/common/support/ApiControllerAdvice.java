@@ -3,11 +3,14 @@ package io.dodn.springboot.common.support;
 import io.dodn.springboot.common.support.error.CoreException;
 import io.dodn.springboot.common.support.error.ErrorType;
 import io.dodn.springboot.common.support.response.ApiResponse;
-
 import io.dodn.springboot.member.exception.NotFoundMemberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -34,7 +37,32 @@ public class ApiControllerAdvice {
 
     @ExceptionHandler(NotFoundMemberException.class)
     public ResponseEntity<ApiResponse<?>> handleNotFoundMemberException(NotFoundMemberException e) {
-        log.warn("NotFoundMemberException : {}", e.getMessage(), e);
-        return new ResponseEntity<>(ApiResponse.error(ErrorType.NOT_FOUND_MEMBER), ErrorType.NOT_FOUND_MEMBER.getStatus());
+        log.warn("NotFoundMemberException : {}", e.getMessage(), e); // 스택 트레이스 없이 메시지만 로깅
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.NOT_FOUND_MEMBER, e.getMessage()), ErrorType.NOT_FOUND_MEMBER.getStatus());
     }
+
+    // Spring @Valid 유효성 검사 실패 시 (MethodArgumentNotValidException)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.warn("MethodArgumentNotValidException : {}", e.getMessage()); // 보통 필드별 오류 메시지가 e.getBindingResult()에 있음
+        // ErrorType에 VALIDATION_FAILED 와 같은 타입을 정의하고 사용
+        // e.getBindingResult()를 파싱하여 더 상세한 오류 메시지를 ApiResponse에 담을 수도 있습니다.
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.INVALID_INPUT_VALUE, e.getBindingResult().getAllErrors().get(0).getDefaultMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    // 필수 요청 파라미터 누락 시 (MissingServletRequestParameterException)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<?>> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        log.warn("MissingServletRequestParameterException : {}", e.getMessage());
+        // ErrorType에 REQUIRED_PARAMETER_MISSING 과 같은 타입을 정의하고 사용
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.MISSING_REQUEST_PARAMETER, e.getParameterName() + " 파라미터가 필요합니다."), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+        log.warn("AuthorizationDeniedException : {}", e.getMessage());
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.AUTHORIZATION_DENIED), HttpStatus.FORBIDDEN);
+    }
+
+
 }

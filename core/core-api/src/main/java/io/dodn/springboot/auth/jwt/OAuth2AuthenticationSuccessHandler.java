@@ -74,7 +74,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                             .queryParam("refreshToken", tokenInfo.refreshToken())
                             .build().toUriString();
 
-            clearAuthenticationAttributes(request);
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
 
         } catch (NotFoundMemberException e) {
@@ -83,8 +82,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         } catch (Exception e) {
             ApiResponse<?> errorResponse = ApiResponse.error(ErrorType.DEFAULT_ERROR, e.getMessage());
             objectMapper.writeValue(response.getWriter(), errorResponse);
+        } finally {
+            clearAuthenticationAttributes(request);
         }
-
     }
 
 
@@ -93,9 +93,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // 사용자의 권한을 Enum으로 체크하여 권한을 리스트에 추가
         if (member.isAdmin()) {
-            authorities.add(new SimpleGrantedAuthority("ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else {
-            authorities.add(new SimpleGrantedAuthority("USER"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
 
         return authorities;
