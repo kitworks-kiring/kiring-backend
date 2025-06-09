@@ -1,0 +1,96 @@
+package io.dodn.springboot.storage.db.matzip.entity;
+
+import io.dodn.springboot.storage.db.common.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "place")
+public class Place extends BaseEntity {
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "like_count")
+    private int likeCount;
+
+    @Column(name = "latitude", precision = 10, scale = 8) // DB의 DECIMAL(10, 8)에 매핑
+    private BigDecimal latitude;
+
+    @Column(name = "longitude", precision = 11, scale = 8) // DB의 DECIMAL(11, 8)에 매핑
+    private BigDecimal longitude;
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Menu> menus = new ArrayList<>();
+
+    // == 연관관계 편의 메서드 == //
+    public void addMenu(Menu menu) {
+        this.menus.add(menu);
+        if (menu.getPlace() != this) {
+            menu.setPlace(this);
+        }
+    }
+
+
+    protected Place() {
+    }
+
+    public Place(final String name, final String address, final String phoneNumber, final String description, final int likeCount, final BigDecimal latitude, final BigDecimal longitude, final List<Menu> menus) {
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.description = description;
+        this.likeCount = likeCount;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.menus = menus;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
+    }
+
+    public List<Menu> getMenus() {
+        return menus;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
+    }
+}

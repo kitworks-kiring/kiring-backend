@@ -61,13 +61,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             final TokenInfo tokenInfo = jwtTokenProvider.generateToken(String.valueOf(member.getId()), authorities);
             log.info("애플리케이션 JWT 발급: {}", tokenInfo);
 
-//            // --- JSON 응답으로 직접 TokenInfo 보내기 ---
-//            response.setStatus(HttpStatus.OK.value()); // HTTP 상태 코드 200 OK
-//            response.setContentType(MediaType.APPLICATION_JSON_VALUE); // Content Type을 JSON으로 설정
-//            response.setCharacterEncoding("UTF-8"); // 문자 인코딩 설정
-//
-//            // TokenInfo 객체를 JSON 문자열로 변환하여 응답 본문에 작성
-//            objectMapper.writeValue(response.getWriter(), tokenInfo);
             final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
                             .queryParam("accessToken", tokenInfo.accessToken())
                             .queryParam("refreshToken", tokenInfo.refreshToken())
