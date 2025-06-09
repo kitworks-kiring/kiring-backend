@@ -64,7 +64,7 @@ public class MemberService {
         log.info(changePhoneNumber(kakaoUserInfoResponse.kakaoAccount().phoneNumber()));
         return memberRepository.findByPhone(changePhoneNumber(kakaoUserInfoResponse.kakaoAccount().phoneNumber()))
                 .orElseThrow(
-                        () -> new NotFoundMemberException("전화번호로 멤버를 찾을 수 없습니다: " + kakaoUserInfoResponse.kakaoAccount().phoneNumber())
+                        () -> new NotFoundMemberException("가입되지 않은 유저입니다. : " + kakaoUserInfoResponse.kakaoAccount().phoneNumber())
                 );
     }
 

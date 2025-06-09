@@ -32,6 +32,9 @@ public class Member extends BaseEntity {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @Column(name = "kiring_image_url")
+    private String kiringImageUrl;
+
     @Column(name = "birthday")
     private LocalDate birthday;
 
@@ -52,7 +55,7 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
-    public Member(String name, String email, String phone, String kakaoId, String nickname, String profileImageUrl,
+    public Member(String name, String email, String phone, String kakaoId, String nickname, String profileImageUrl, final String kiringImageUrl,
                   LocalDate birthday, String githubId, boolean isEmployed, boolean isAdmin, Team team) {
         this.name = name;
         this.email = email;
@@ -60,6 +63,7 @@ public class Member extends BaseEntity {
         this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
+        this.kiringImageUrl = kiringImageUrl;
         this.birthday = birthday;
         this.githubId = githubId;
         this.isEmployed = isEmployed;
@@ -67,6 +71,9 @@ public class Member extends BaseEntity {
         this.team = team;
     }
 
+    public String getKiringImageUrl() {
+        return kiringImageUrl;
+    }
 
     public String getName() {
         return name;
@@ -165,6 +172,9 @@ public class Member extends BaseEntity {
         }
         if (member.profileImageUrl != null && !member.profileImageUrl.isBlank()) {
             this.profileImageUrl = member.profileImageUrl;
+        }
+        if (member.kiringImageUrl != null && !member.kiringImageUrl.isBlank()) {
+            this.kiringImageUrl = member.kiringImageUrl;
         }
         if (member.birthday != null) {
             this.birthday = member.birthday;

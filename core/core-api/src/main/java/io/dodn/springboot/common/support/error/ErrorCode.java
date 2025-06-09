@@ -9,7 +9,8 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED("E405", "Method not allowed"),
     UNSUPPORTED_MEDIA_TYPE("E415", "Unsupported media type"),
     UNPROCESSABLE_ENTITY("E422", "Unprocessable entity"),
-    NOT_FOUND("E404", "Resource not found");
+    NOT_FOUND("E404", "Resource not found"),
+    INVALID_INPUT_VALUE("E404", "Valid filed");
 
     private final String code;
     private final String message;

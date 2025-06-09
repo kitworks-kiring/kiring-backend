@@ -8,6 +8,7 @@ import io.dodn.springboot.member.controller.response.MemberResponse;
 import io.dodn.springboot.member.controller.response.MembersResponse;
 import io.dodn.springboot.member.domain.MemberService;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MemberController implements MemberDocs {
+    private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MemberController.class);
 
     private final MemberService memberService;
 
@@ -47,12 +49,19 @@ public class MemberController implements MemberDocs {
         return ApiResponse.success(MembersResponse.of(memberService.findAllMemberByTeamId(teamId)));
     }
 
-    @PutMapping("/members/{memberId}")
+    @PutMapping("/members/me")
     public ApiResponse<MemberResponse> updateMember(
             @Parameter(hidden = true) @LoginUser final Long memberId,
             @RequestBody UpdateMemberRequest updateMemberRequest
     ) {
         return ApiResponse.success(MemberResponse.of(memberService.updateMember(memberId, updateMemberRequest.toEntity())));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/member/role")
+    public ApiResponse<String> getTest() {
+        log.info("apia 호출됨??");
+        return ApiResponse.success("Test success");
     }
 
 

@@ -24,10 +24,16 @@ spring:
             scope: account_email,phone_number,name,profile_nickname
         provider:
           kakao:
-            authorization-uri:  https://kauth.kakao.com/oauth/authorize
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me # 사용자 정보 가져오는 URI
             user-name-attribute: id # 사용자 정보 응답에서 사용자 ID로 사용할 속성 이름
+
+kakao:
+  logout:
+    uri: https://kauth.kakao.com/oauth/logout
+    client-logout-redirect-uri: http://localhost:3000/login/callback
+
 
 server:
   tomcat:
