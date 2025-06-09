@@ -36,7 +36,7 @@ public class Member extends BaseEntity {
     private String kiringImageUrl;
 
     @Column(name = "birthday")
-    private LocalDate birthday;
+    private String birthday;
 
     @Column(name = "github_id")
     private String githubId;
@@ -47,16 +47,18 @@ public class Member extends BaseEntity {
     @Column(name = "is_admin")
     private boolean isAdmin;
 
+    @Column(name = "joined_at")
+    private LocalDate joinedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false) // MEMBER 테이블의 team_id 컬럼과 매핑, NULL
-                                                    // 비허용
     private Team team;
 
     protected Member() {
     }
 
     public Member(String name, String email, String phone, String kakaoId, String nickname, String profileImageUrl, final String kiringImageUrl,
-                  LocalDate birthday, String githubId, boolean isEmployed, boolean isAdmin, Team team) {
+                  String birthday, String githubId, boolean isEmployed, boolean isAdmin, final LocalDate joinedAt, Team team) {
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -68,6 +70,7 @@ public class Member extends BaseEntity {
         this.githubId = githubId;
         this.isEmployed = isEmployed;
         this.isAdmin = isAdmin;
+        this.joinedAt = joinedAt;
         this.team = team;
     }
 
@@ -99,7 +102,7 @@ public class Member extends BaseEntity {
         return profileImageUrl;
     }
 
-    public LocalDate getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
@@ -181,6 +184,12 @@ public class Member extends BaseEntity {
         }
         if (member.githubId != null && !member.githubId.isBlank()) {
             this.githubId = member.githubId;
+        }
+        if (member.joinedAt != null) {
+            this.joinedAt = member.joinedAt;
+        }
+        if (member.team != null) {
+            this.team = member.team;
         }
         this.isEmployed = member.isEmployed;
     }
