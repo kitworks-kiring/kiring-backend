@@ -1,6 +1,7 @@
 package io.dodn.springboot.matzip.controller;
 
 import io.dodn.springboot.common.annotation.LoginUser;
+import io.dodn.springboot.common.dto.CustomPageResponse;
 import io.dodn.springboot.common.support.response.ApiResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
 import io.dodn.springboot.matzip.domain.MatzipService;
@@ -21,12 +22,13 @@ public class MatzipController {
     }
 
     @GetMapping("/places")
-    public ApiResponse<Page<PlaceResponse>> getAllPlaces(
-            // 로그인한 사용자 ID를 받습니다. 비로그인 시 null이 전달되도록 ArgumentResolver 설정 필요
+    public ApiResponse<CustomPageResponse<PlaceResponse>> getAllPlaces(
             @Parameter(hidden = true) @LoginUser final Long memberId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<PlaceResponse> placeResponses = matzipService.findAllPlaces(memberId, pageable);
-        return ApiResponse.success(placeResponses);
+
+        CustomPageResponse<PlaceResponse> response = new CustomPageResponse<>(placeResponses);
+        return ApiResponse.success(response);
     }
 }
