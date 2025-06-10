@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface PlaceLikeJpaRepository extends JpaRepository<PlaceLike, Long> {
@@ -15,4 +16,5 @@ public interface PlaceLikeJpaRepository extends JpaRepository<PlaceLike, Long> {
     @Query("SELECT pl.place.id FROM PlaceLike pl WHERE pl.member.id = :memberId AND pl.place.id IN :placeIds")
     Set<Long> findLikedPlaceIdsByMemberAndPlaceIds(@Param("memberId") Long memberId, @Param("placeIds") List<Long> placeIds);
 
+    Optional<PlaceLike> findByMemberIdAndPlaceId(Long memberId, Long placeId);
 }

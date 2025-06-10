@@ -26,9 +26,19 @@ public class PlaceLike extends BaseEntity {
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
+    public PlaceLike() {
+    }
+
     public PlaceLike(Member member, Place place) {
         this.member = member;
         this.place = place;
     }
 
+    public Member getMember() {
+        return member;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
 }

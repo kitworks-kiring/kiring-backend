@@ -3,6 +3,7 @@ package io.dodn.springboot.common.support;
 import io.dodn.springboot.common.support.error.CoreException;
 import io.dodn.springboot.common.support.error.ErrorType;
 import io.dodn.springboot.common.support.response.ApiResponse;
+import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,18 @@ public class ApiControllerAdvice {
     public ResponseEntity<ApiResponse<?>> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
         log.warn("AuthorizationDeniedException : {}", e.getMessage());
         return new ResponseEntity<>(ApiResponse.error(ErrorType.AUTHORIZATION_DENIED), ErrorType.AUTHORIZATION_DENIED.getStatus());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<?>> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn("IllegalArgumentException : {}", e.getMessage());
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.ERR_1004), ErrorType.ERR_1004.getStatus());
+    }
+
+    @ExceptionHandler(NotFoundPlaceException.class)
+    public ResponseEntity<ApiResponse<?>> handleNotFoundPlaceException(NotFoundPlaceException e) {
+        log.warn("NotFoundPlaceException : {}", e.getMessage());
+        return new ResponseEntity<>(ApiResponse.error(ErrorType.ERR_1005), ErrorType.ERR_1005.getStatus());
     }
 
 

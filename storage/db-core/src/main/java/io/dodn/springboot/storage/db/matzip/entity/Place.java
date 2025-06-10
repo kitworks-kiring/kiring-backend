@@ -28,7 +28,7 @@ public class Place extends BaseEntity {
     private String description;
 
     @Column(name = "like_count")
-    private int likeCount;
+    private int likeCount = 0;
 
     @Column(name = "latitude", precision = 10, scale = 8) // DB의 DECIMAL(10, 8)에 매핑
     private BigDecimal latitude;
@@ -38,15 +38,6 @@ public class Place extends BaseEntity {
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Menu> menus = new ArrayList<>();
-
-    // == 연관관계 편의 메서드 == //
-    public void addMenu(Menu menu) {
-        this.menus.add(menu);
-        if (menu.getPlace() != this) {
-            menu.setPlace(this);
-        }
-    }
-
 
     protected Place() {
     }
@@ -92,5 +83,23 @@ public class Place extends BaseEntity {
 
     public int getLikeCount() {
         return likeCount;
+    }
+
+    // == 연관관계 편의 메서드 == //
+    public void addMenu(Menu menu) {
+        this.menus.add(menu);
+        if (menu.getPlace() != this) {
+            menu.setPlace(this);
+        }
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
     }
 }
