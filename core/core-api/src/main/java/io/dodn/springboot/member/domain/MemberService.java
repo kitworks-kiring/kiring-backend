@@ -23,16 +23,16 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    public Member createMember(Member member) {
+    public Member createMember(final Member member) {
         return memberRepository.save(member);
     }
 
-    public Member findMemberById(Long id) {
+    public Member findMemberById(final Long id) {
         return memberRepository.findById(id)
             .orElseThrow(() -> new NotFoundMemberException("Member not found with id: " + id));
     }
 
-    public void deleteMember(Long id) {
+    public void deleteMember(final Long id) {
         memberRepository.deleteById(id);
     }
 

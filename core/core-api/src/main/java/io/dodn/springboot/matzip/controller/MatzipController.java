@@ -4,6 +4,7 @@ import io.dodn.springboot.common.annotation.LoginUser;
 import io.dodn.springboot.common.support.response.ApiResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
 import io.dodn.springboot.matzip.domain.MatzipService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,7 +23,7 @@ public class MatzipController {
     @GetMapping("/places")
     public ApiResponse<Page<PlaceResponse>> getAllPlaces(
             // ★ 로그인한 사용자 ID를 받습니다. 비로그인 시 null이 전달되도록 ArgumentResolver 설정 필요
-            @LoginUser final Long memberId,
+            @Parameter(hidden = true) @LoginUser final Long memberId,
             // ★ 페이지네이션 정보를 받습니다. 예: /api/v1/places?page=0&size=10&sort=createdAt,desc
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
