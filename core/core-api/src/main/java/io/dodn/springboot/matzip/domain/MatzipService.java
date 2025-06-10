@@ -35,9 +35,9 @@ public class MatzipService {
         Set<Long> likedPlaceIds = getLikedPlaceIds(memberId, placeList);
 
         // 3. Place 엔티티를 PlaceResponse DTO로 변환하면서, 좋아요 상태를 설정합니다.
-        return places.map(place -> {
-            return PlaceResponse.of(place, likedPlaceIds.contains(place.getId()));
-        });
+        return places.map(place ->
+                PlaceResponse.of(place, likedPlaceIds.contains(place.getId()))
+        );
     }
 
     private Set<Long> getLikedPlaceIds(final Long memberId, final List<Place> placeList) {
