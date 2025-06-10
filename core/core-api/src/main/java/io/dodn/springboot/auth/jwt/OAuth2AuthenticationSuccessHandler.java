@@ -6,6 +6,7 @@ import io.dodn.springboot.auth.kakao.dto.KakaoUserInfoResponse;
 import io.dodn.springboot.common.support.error.ErrorType;
 import io.dodn.springboot.member.domain.MemberService;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
+import io.dodn.springboot.member.exception.NotFoundPhoneException;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,10 +73,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             log.info("가입되지 않은 사용자입니다. 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
 
             final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
-                    .queryParam("email", kakaoUserInfo.getEmail())
-                    .queryParam("kakaoId", String.valueOf(kakaoUserInfo.id()))
-                    .queryParam("errorCode", ErrorType.NOT_FOUND_MEMBER)
-                    .queryParam("errorMessage", "가입되지 않은 사용자")
+                    .queryParam("errorCode", ErrorType.ERR_1001)
+                    .queryParam("errorMessage", ErrorType.ERR_1001.getMessage())
+                    .build()
+                    .encode() // URL 인코딩
+                    .toUriString();
+
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } catch (NotFoundPhoneException e) {
+            // 3. 실패: 사용자를 찾을 수 없다는 예외 발생 시 회원가입 페이지로 리다이렉트 , 폰번호가 없는 경우도 추가
+            log.info("계정에 폰번호가 없습니다. 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
+
+            final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
+                    .queryParam("errorCode", ErrorType.ERR_1003)
+                    .queryParam("errorMessage", ErrorType.ERR_1003.getMessage())
                     .build()
                     .encode() // URL 인코딩
                     .toUriString();
@@ -83,13 +94,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         } catch (Exception e) {
             // 3. 실패: 계정에 폰번호가 없거나 나머지 서버 에러
-            log.info("계정에 폰번호가 없거나 나머지 서버 에러 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
+            log.info("서버 에러 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
 
             final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
-                    .queryParam("email", kakaoUserInfo.getEmail())
-                    .queryParam("nickname", kakaoUserInfo.getNickname())
-                    .queryParam("errorCode", ErrorType.DEFAULT_ERROR)
-                    .queryParam("errorMessage", "계정에 폰번호 존재하지않음 or 서버 에러")
+                    .queryParam("errorCode", ErrorType.ERR_1099)
+                    .queryParam("errorMessage", ErrorType.ERR_1099.getMessage())
                     .build()
                     .encode() // URL 인코딩
                     .toUriString();
