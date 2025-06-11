@@ -9,7 +9,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.locationtech.jts.geom.Point;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +32,6 @@ public class Place extends BaseEntity {
 
     @Column(name = "location", nullable = false, columnDefinition = "POINT SRID 4326")
     private Point location;
-
-    @Column(name = "longitude", precision = 11, scale = 8) // DB의 DECIMAL(11, 8)에 매핑
-    private BigDecimal longitude;
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Menu> menus = new ArrayList<>();

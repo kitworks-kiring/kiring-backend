@@ -3,6 +3,7 @@ package io.dodn.springboot.matzip.controller;
 import io.dodn.springboot.common.annotation.LoginUser;
 import io.dodn.springboot.common.dto.CustomPageResponse;
 import io.dodn.springboot.common.support.response.ApiResponse;
+import io.dodn.springboot.common.swagger.MatzipDocs;
 import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
 import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
@@ -12,8 +13,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/matzip")
-public class MatzipController {
+public class MatzipController implements MatzipDocs {
     private final MatzipService matzipService;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326); // SRID 4326 (WGS84) 사용
 
@@ -35,7 +34,7 @@ public class MatzipController {
     @GetMapping("/places")
     public ApiResponse<CustomPageResponse<PlaceResponse>> getAllPlaces(
             @Parameter(hidden = true) @LoginUser final Long memberId,
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            Pageable pageable
     ) {
         Page<PlaceResponse> placeResponses = matzipService.findAllPlaces(memberId, pageable);
 
