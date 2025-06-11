@@ -55,7 +55,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html", // Swagger UI 접근 허용
                                 "/swagger-ui/**", // Swagger UI 리소스 접근 허용
                                 "/v3/api-docs/**", // Swagger API 문서 접근 허용
-                                "/auth/logout" // 로그아웃 경로는 인증된 사용자가 호출할 수 있도록 authenticated()에 두거나,
+                                "/auth/logout", // 로그아웃 경로는 인증된 사용자가 호출할 수 있도록 authenticated()에 두거나,
+                                "/api/v1/matzip/**",
+                                "/api/v1/member/**"
                         ).permitAll()// API 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )

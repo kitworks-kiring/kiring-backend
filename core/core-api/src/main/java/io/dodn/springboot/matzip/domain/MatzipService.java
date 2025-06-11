@@ -1,15 +1,18 @@
 package io.dodn.springboot.matzip.domain;
 
 import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
+import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
 import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
+import io.dodn.springboot.storage.db.matzip.PlaceWithDistance;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +34,10 @@ public class MatzipService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PlaceResponse> findAllPlaces(final Long memberId, final Pageable pageable) {
+    public Page<PlaceResponse> findAllPlaces(
+            final Long memberId,
+            final Pageable pageable
+    ) {
         // 1. 맛집 목록을 페이지네이션하여 조회합니다.
         Page<Place> places = matzipRepository.findAll(pageable);
         List<Place> placeList = places.getContent();
@@ -49,7 +55,10 @@ public class MatzipService {
         );
     }
 
-    private Set<Long> getLikedPlaceIds(final Long memberId, final List<Place> placeList) {
+    private Set<Long> getLikedPlaceIds(
+            final Long memberId,
+            final List<Place> placeList
+    ) {
         // 비로그인 사용자의 경우, 빈 Set을 반환합니다.
         if (memberId == null) {
             return Collections.emptySet();
@@ -65,7 +74,10 @@ public class MatzipService {
     }
 
     @Transactional
-    public LikeToggleResponse toggleLike(final Long memberId, final Long placeId) {
+    public LikeToggleResponse toggleLike(
+            final Long memberId,
+            final Long placeId
+    ) {
         // 1. 기존 '좋아요' 기록이 있는지 확인합니다.
         Optional<PlaceLike> existingLike = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId);
 
@@ -89,5 +101,26 @@ public class MatzipService {
             place.increaseLikeCount();
             return new LikeToggleResponse(true, place.getLikeCount()); // isLiked: true, 업데이트된 카운트
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NearbyPlaceResponse> findNearbyPlaces(
+            final double latitude,
+            final double longitude,
+            final int radius,
+            final Pageable pageable
+    ) {
+        // 네이티브 쿼리는 Pageable을 직접 처리하기 복잡하므로,
+        // 전체 개수를 따로 조회하고 직접 Page 객체를 만듭니다.
+        String pointWkt = String.format("POINT(%f %f)", latitude, longitude);
+        long totalCount = matzipRepository.countNearbyPlaces(pointWkt, radius);
+
+        List<PlaceWithDistance> results = matzipRepository.findNearbyPlaces(pointWkt, radius, pageable);
+
+        List<NearbyPlaceResponse> dtos = results.stream()
+                .map(NearbyPlaceResponse::fromProjection)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageable, totalCount);
     }
 }

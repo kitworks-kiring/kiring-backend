@@ -1,6 +1,7 @@
 package io.dodn.springboot.storage.db.matzip.adapter;
 
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
+import io.dodn.springboot.storage.db.matzip.PlaceWithDistance;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import io.dodn.springboot.storage.db.matzip.repository.MenuJpaRepository;
@@ -56,6 +57,16 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
     @Override
     public void save(final PlaceLike newLike) {
         placeLikeJpaRepository.save(newLike);
+    }
+
+    @Override
+    public long countNearbyPlaces(final String pointWkt, final int radius) {
+        return placeJpaRepository.countNearbyPlaces(pointWkt, radius);
+    }
+
+    @Override
+    public List<PlaceWithDistance> findNearbyPlaces(final String pointWkt, final int radius, final Pageable pageable) {
+        return placeJpaRepository.findNearbyPlaces(pointWkt, radius, pageable);
     }
 
 

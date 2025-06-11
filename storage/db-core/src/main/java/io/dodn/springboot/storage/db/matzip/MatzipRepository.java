@@ -21,4 +21,8 @@ public interface MatzipRepository {
     void delete(PlaceLike placeLike);
 
     void save(PlaceLike newLike);
+
+    long countNearbyPlaces(String pointWkt, int radius);
+
+    List<PlaceWithDistance> findNearbyPlaces(String pointWkt, int radius, Pageable pageable);
 }

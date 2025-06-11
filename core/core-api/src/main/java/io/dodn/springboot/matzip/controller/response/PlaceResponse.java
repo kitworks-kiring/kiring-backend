@@ -1,8 +1,7 @@
 package io.dodn.springboot.matzip.controller.response;
 
 import io.dodn.springboot.storage.db.matzip.entity.Place;
-
-import java.math.BigDecimal;
+import org.locationtech.jts.geom.Point;
 
 public record PlaceResponse(
         Long placeId,
@@ -10,8 +9,8 @@ public record PlaceResponse(
         String address,
         String phoneNumber,
         String description,
-        BigDecimal latitude,
-        BigDecimal longitude,
+        double latitude,
+        double longitude,
         long likeCount, // 맛집의 총 좋아요 수
         boolean isLiked // ★ 현재 로그인한 사용자의 좋아요 여부
 ) {
@@ -22,14 +21,19 @@ public record PlaceResponse(
      * @return PlaceResponse 레코드 인스턴스
      */
     public static PlaceResponse of(Place place, boolean isLiked) {
+        Point locationPoint = place.getLocation(); // 엔티티에서 Point 객체를 가져옴
+
+        final double pointX = locationPoint.getX();
+        final double pointY = locationPoint.getY();
+
         return new PlaceResponse(
                 place.getId(),
                 place.getName(),
                 place.getAddress(),
                 place.getPhoneNumber(),
                 place.getDescription(),
-                place.getLatitude(),
-                place.getLongitude(),
+                pointX,
+                pointY,
                 place.getLikeCount(), // Place 엔티티에 getLikeCount() 메서드가 있다고 가정
                 isLiked
         );

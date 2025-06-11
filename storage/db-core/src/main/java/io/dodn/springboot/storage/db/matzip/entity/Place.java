@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.locationtech.jts.geom.Point;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,8 +31,8 @@ public class Place extends BaseEntity {
     @Column(name = "like_count")
     private int likeCount = 0;
 
-    @Column(name = "latitude", precision = 10, scale = 8) // DB의 DECIMAL(10, 8)에 매핑
-    private BigDecimal latitude;
+    @Column(name = "location", nullable = false, columnDefinition = "POINT SRID 4326")
+    private Point location;
 
     @Column(name = "longitude", precision = 11, scale = 8) // DB의 DECIMAL(11, 8)에 매핑
     private BigDecimal longitude;
@@ -42,14 +43,13 @@ public class Place extends BaseEntity {
     protected Place() {
     }
 
-    public Place(final String name, final String address, final String phoneNumber, final String description, final int likeCount, final BigDecimal latitude, final BigDecimal longitude, final List<Menu> menus) {
+    public Place(final String name, final String address, final String phoneNumber, final String description, final int likeCount, final Point location, final List<Menu> menus) {
         this.name = name;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.description = description;
         this.likeCount = likeCount;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.location = location;
         this.menus = menus;
     }
 
@@ -69,12 +69,8 @@ public class Place extends BaseEntity {
         return description;
     }
 
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
+    public Point getLocation() {
+        return location;
     }
 
     public List<Menu> getMenus() {
