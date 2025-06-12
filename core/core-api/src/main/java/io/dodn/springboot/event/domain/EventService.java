@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -31,7 +30,7 @@ public class EventService {
     ) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime endDate = yearMonth.atEndOfMonth().plusDays(1).atStartOfDay();
+        LocalDateTime endDate = yearMonth.atEndOfMonth().plusDays(1).atStartOfDay().minusDays(1);
 
         List<Event> regularEvents = eventRepository.findEventsForPeriod(startDate, endDate);
 
@@ -45,8 +44,7 @@ public class EventService {
         Stream<CalendarEventResponse> birthdayEventStream = birthdayMembers.stream()
                 .map(member -> CalendarEventResponse.fromBirthday(member, year));
 
-        return Stream.concat(regularEventStream, birthdayEventStream)
-                .sorted(Comparator.comparing(CalendarEventResponse::start))
+        return Stream.concat(birthdayEventStream, regularEventStream)
                 .toList();
     }
 }

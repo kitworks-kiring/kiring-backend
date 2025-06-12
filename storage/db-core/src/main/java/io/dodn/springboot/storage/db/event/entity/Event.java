@@ -42,6 +42,9 @@ public class Event extends BaseEntity {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
+    public Event() {
+    }
+
     public Event(
             final String title,
             final String description,

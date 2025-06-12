@@ -26,4 +26,6 @@ public interface MemberRepository {
     long count();
 
     Optional<Member> findByPhone(String s);
+
+    List<Member> findMembersWithBirthdayInMonth(String monthString);
 }
