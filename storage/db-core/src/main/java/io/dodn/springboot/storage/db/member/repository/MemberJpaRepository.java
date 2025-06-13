@@ -22,4 +22,7 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     List<Member> findMembersAndFetchTeamByTeamId(@Param("teamId") Long teamId);
 
     Optional<Member> findByPhone(String s);
+
+    @Query("SELECT m FROM Member m WHERE SUBSTRING(m.birthday, 1, 2) = :monthString")
+    List<Member> findMembersWithBirthdayInMonth(@Param("monthString") String monthString);
 }

@@ -12,10 +12,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/v1/member")
 public class MemberController implements MemberDocs {
     private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MemberController.class);
 
@@ -25,19 +27,19 @@ public class MemberController implements MemberDocs {
         this.memberService = memberService;
     }
 
-    @GetMapping("/members/me")
+    @GetMapping("/me")
     public ApiResponse<MemberResponse> getMemberById(
             @Parameter(hidden = true) @LoginUser final Long memberId
     ) {
         return ApiResponse.success(MemberResponse.of(memberService.findMemberById(memberId)));
     }
 
-    @GetMapping("/members")
+    @GetMapping("/all")
     public ApiResponse<MembersResponse> getMembersWithTeam() {
         return ApiResponse.success(MembersResponse.of(memberService.findAllMembersWithTeamUsingFetchJoin()));
     }
 
-    @GetMapping("/members/count")
+    @GetMapping("/all/count")
     public ApiResponse<Long> getMemberCount() {
         return ApiResponse.success(memberService.countMembers());
     }
@@ -49,7 +51,7 @@ public class MemberController implements MemberDocs {
         return ApiResponse.success(MembersResponse.of(memberService.findAllMemberByTeamId(teamId)));
     }
 
-    @PutMapping("/members/me")
+    @PutMapping("/me")
     public ApiResponse<MemberResponse> updateMember(
             @Parameter(hidden = true) @LoginUser final Long memberId,
             @RequestBody UpdateMemberRequest updateMemberRequest
@@ -58,7 +60,7 @@ public class MemberController implements MemberDocs {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/member/role")
+    @GetMapping("/role")
     public ApiResponse<String> getTest() {
         log.info("apia 호출됨??");
         return ApiResponse.success("Test success");

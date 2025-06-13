@@ -32,6 +32,11 @@ subprojects {
 
     dependencies {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+        // Hibernate Spatial (JPA 공간 데이터 타입 지원)
+        implementation 'org.hibernate.orm:hibernate-spatial:6.5.2.Final' // Hibernate 6 버전에 맞는 버전 사용
+        // JTS (Java Topology Suite) Core - Point, Polygon 등 공간 데이터 객체 제공
+        implementation 'org.locationtech.jts:jts-core:1.19.0'
     }
 
     bootJar.enabled = false

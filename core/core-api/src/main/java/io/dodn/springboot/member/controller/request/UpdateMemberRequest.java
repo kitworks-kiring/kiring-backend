@@ -2,8 +2,6 @@ package io.dodn.springboot.member.controller.request;
 
 import io.dodn.springboot.storage.db.member.entity.Member;
 
-import java.time.LocalDate;
-
 public record UpdateMemberRequest(
         String name,
         String email,
@@ -12,7 +10,7 @@ public record UpdateMemberRequest(
         String nickname,
         String profileImageUrl,
         String kiringImageUrl,
-        LocalDate birthday,
+        String birthday,
         String githubId,
         boolean isEmployed,
         boolean isAdmin
@@ -30,6 +28,7 @@ public record UpdateMemberRequest(
                 githubId,
                 isEmployed,
                 isAdmin,
+                null,
                 null // 팀 정보는 별도로 설정하지 않음
         );
     }

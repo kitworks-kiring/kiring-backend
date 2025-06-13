@@ -25,16 +25,16 @@ public class PlaneService {
 
     public Plane sendMessage(final @Valid SendMessageRequest request) {
         final Member sender = memberRepository.findById(request.senderId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER, "Member not found with id: " + request.senderId()));
+                .orElseThrow(() -> new CoreException(ErrorType.ERR_1001, "Member not found with id: " + request.senderId()));
 
         final Member receiver = memberRepository.findById(request.receiverId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER, "Member not found with id: " + request.receiverId()));
+                .orElseThrow(() -> new CoreException(ErrorType.ERR_1001, "Member not found with id: " + request.receiverId()));
 
 
         // 실제로는 자기 자신에게 쪽지를 보내는 등의 비즈니스 규칙 검사도 추가될 수 있음
         if (sender.getId().equals(receiver.getId())) {
             // 예외 처리 또는 다른 로직 (여기서는 간단히 예외로 가정)
-            throw new CoreException(ErrorType.DEFAULT_ERROR, "자기 자신에게 쪽지를 보낼 수 없습니다.");
+            throw new CoreException(ErrorType.ERR_1099, "자기 자신에게 쪽지를 보낼 수 없습니다.");
         }
 
         final Plane plane = Plane.create(
