@@ -38,7 +38,7 @@ public record CalendarEventResponse(
 
         return new CalendarEventResponse(
                 null, // 생일은 Event 테이블에 ID가 없으므로 null
-                EventCategory.BIRTHDAY.getDescription(),
+                EventCategory.BIRTHDAY.name(),
                 member.getName(),
                 birthdayStart,
                 birthdayEnd
