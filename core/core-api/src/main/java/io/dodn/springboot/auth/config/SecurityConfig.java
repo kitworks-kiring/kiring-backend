@@ -1,5 +1,6 @@
 package io.dodn.springboot.auth.config;
 
+import io.dodn.springboot.auth.jwt.CustomOAuth2AuthorizationRequestResolver;
 import io.dodn.springboot.auth.jwt.JwtAuthenticationFilter;
 import io.dodn.springboot.auth.jwt.JwtTokenProvider;
 import io.dodn.springboot.auth.jwt.KakaoLogoutSuccessHandler;
@@ -29,11 +30,14 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler; // 카카오 로그아웃 성공 핸들러
+    private final CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver; // ★★★ 주입 ★★★
 
-    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler) {
+
+    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler, final CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.kakaoLogoutSuccessHandler = kakaoLogoutSuccessHandler;
+        this.customOAuth2AuthorizationRequestResolver = customOAuth2AuthorizationRequestResolver;
     }
 
     @Bean
@@ -47,7 +51,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/login/oauth2/code/**",
                                 "/oauth2/**", // OAuth2 인증 관련 API 접근 허용
@@ -63,6 +67,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(auth -> auth
+                                .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver) // 커스텀 리졸버 등록
+                        )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .logout(logout -> logout
