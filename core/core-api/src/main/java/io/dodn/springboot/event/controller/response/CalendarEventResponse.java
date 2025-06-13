@@ -13,8 +13,7 @@ public record CalendarEventResponse(
         String eventType,
         String title,
         LocalDateTime start,
-        LocalDateTime end,
-        String creatorName
+        LocalDateTime end
 ) {
 
     public static CalendarEventResponse fromEvent(Event event) {
@@ -23,8 +22,7 @@ public record CalendarEventResponse(
                 event.getEventCategory().name(), // Enum의 이름을 문자열로 사용
                 event.getTitle(),
                 event.getStartDatetime(),
-                event.getEndDatetime(),
-                event.getCreator().getName() // Member 엔티티에 getName()이 있다고 가정
+                event.getEndDatetime()
         );
     }
 
@@ -41,10 +39,9 @@ public record CalendarEventResponse(
         return new CalendarEventResponse(
                 null, // 생일은 Event 테이블에 ID가 없으므로 null
                 EventCategory.BIRTHDAY.getDescription(),
-                member.getName() + "님 생일이에요",
+                member.getName(),
                 birthdayStart,
-                birthdayEnd,
-                null // 생성자가 없으므로 null
+                birthdayEnd
         );
     }
 
