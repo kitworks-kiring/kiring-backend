@@ -19,7 +19,7 @@ spring:
             client-secret: zNvmJgdyPC6arlK2pGiFAfES2xRy0fKk
 #            client-secret: WFQrG7VFVbqU4BhVTm82Pbi6cYOw000o
             client-authentication-method: client_secret_post
-            redirect-uri: "https://{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-name: kakao
             scope: account_email,phone_number,name,profile_nickname
@@ -37,6 +37,7 @@ kakao:
 
 
 server:
+  forward-headers-strategy: native
   tomcat:
     max-connections: 20000
     threads:
