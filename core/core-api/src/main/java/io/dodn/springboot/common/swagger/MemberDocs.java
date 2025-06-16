@@ -3,6 +3,7 @@ package io.dodn.springboot.common.swagger;
 import io.dodn.springboot.common.annotation.LoginUser;
 import io.dodn.springboot.common.support.response.ApiResponse;
 import io.dodn.springboot.member.controller.request.UpdateMemberRequest;
+import io.dodn.springboot.member.controller.response.ImageUrlResponse;
 import io.dodn.springboot.member.controller.response.MemberResponse;
 import io.dodn.springboot.member.controller.response.MembersResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 public interface MemberDocs {
 
@@ -71,4 +74,11 @@ public interface MemberDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "접근 권한 없음")
     })
     ApiResponse<String> getTest();
+
+
+    @Operation(summary = "메인 이미지 URL 조회", description = "메인페이지에서 이미지 사용하기위한 엔드포인트.", tags = { "Member Management" })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공")
+    })
+    public ApiResponse<List<ImageUrlResponse>> getMemberUrls();
 }
