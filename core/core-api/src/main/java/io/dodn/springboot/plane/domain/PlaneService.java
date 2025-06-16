@@ -72,10 +72,10 @@ public class PlaneService {
 
     public boolean getTodayMessage(final long readerId) {
         LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+        LocalDateTime startOfDay = today.atStartOfDay(); // 오늘 날짜의 00:00:00
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);   // 오늘 날짜의 23:59:59
 
-        List<Plane> planeList = planeRepository.findByReceiverId(readerId);
+        List<Plane> planeList = planeRepository.findByReceiverIdAndCreatedAtBetween(readerId, startOfDay, endOfDay);
         return !planeList.isEmpty();
     }
 }

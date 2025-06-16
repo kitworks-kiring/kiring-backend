@@ -12,4 +12,6 @@ public interface PlaneRepository {
     List<Plane> findByReceiverId(long readerId);
 
     boolean existsBySenderAndCreatedAtBetween(Member sender, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    List<Plane> findByReceiverIdAndCreatedAtBetween(long readerId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

@@ -34,4 +34,9 @@ public class PlaneRepositoryAdapter implements PlaneRepository {
     public boolean existsBySenderAndCreatedAtBetween(final Member sender, final LocalDateTime startOfDay, final LocalDateTime endOfDay) {
         return planeJpaRepository.existsBySenderAndCreatedAtBetween(sender, startOfDay, endOfDay);
     }
+
+    @Override
+    public List<Plane> findByReceiverIdAndCreatedAtBetween(final long readerId, final LocalDateTime startOfDay, final LocalDateTime endOfDay) {
+        return planeJpaRepository.findByReceiverIdAndCreatedAtBetween(readerId, startOfDay, endOfDay);
+    }
 }

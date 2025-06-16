@@ -11,4 +11,6 @@ public interface PlaneJpaRepository extends JpaRepository<Plane, Long>{
     List<Plane> findAllByReceiverIdOrderByCreatedAtDesc(long readerId);
 
     boolean existsBySenderAndCreatedAtBetween(Member sender, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    List<Plane> findByReceiverIdAndCreatedAtBetween(long readerId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }
