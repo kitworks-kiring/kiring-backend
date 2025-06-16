@@ -16,6 +16,7 @@ public enum ErrorType {
     ERR_1003(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "휴대전화 번호 존재하지않음", LogLevel.ERROR),
     ERR_1004(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, "올바른 요청이 아닙니다.", LogLevel.ERROR),
     ERR_1005(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, "존재하지 않는 공간입니다", LogLevel.ERROR),
+    ERR_1006(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, "이미 쪽지를 보냈습니다.", LogLevel.ERROR),
     ERR_1099(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.", LogLevel.ERROR);
 
 
