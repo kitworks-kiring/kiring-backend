@@ -6,6 +6,7 @@ public interface PlaceWithDistance {
     String getAddress();
     String getPhoneNumber();
     String getDescription();
+    int getLikeCount();
     Double getLongitude();
     Double getLatitude();
     Double getDistance();

@@ -69,11 +69,6 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
     }
 
     @Override
-    public List<PlaceWithDistance> findNearbyPlaces(final String pointWkt, final int radius, final Pageable pageable) {
-        return placeJpaRepository.findNearbyPlaces(pointWkt, radius, pageable);
-    }
-
-    @Override
     public void saveAll(final List<Place> placesToSave) {
         placeJpaRepository.saveAll(placesToSave);
     }
@@ -86,6 +81,26 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
     @Override
     public List<Category> categoryFindByNameIn(final List<String> categoryNames) {
         return categoryJpaRepository.findByNameIn(categoryNames);
+    }
+
+    @Override
+    public Page<Place> findAllWithCategories(final Pageable pageable) {
+        return placeJpaRepository.findAllWithCategories(pageable);
+    }
+
+    @Override
+    public List<PlaceWithDistance> findNearbyPlacesOrderByDistance(final String pointWkt, final int radius, final Pageable pageable) {
+        return placeJpaRepository.findNearbyPlacesOrderByDistance(pointWkt, radius, pageable);
+    }
+
+    @Override
+    public List<PlaceWithDistance> findNearbyPlacesOrderByName(final String pointWkt, final int radius, final Pageable pageable) {
+        return placeJpaRepository.findNearbyPlacesOrderByName(pointWkt, radius, pageable);
+    }
+
+    @Override
+    public List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(final String pointWkt, final int radius, final Pageable pageable) {
+        return placeJpaRepository.findNearbyPlacesOrderByLikeCount(pointWkt, radius, pageable);
     }
 
 

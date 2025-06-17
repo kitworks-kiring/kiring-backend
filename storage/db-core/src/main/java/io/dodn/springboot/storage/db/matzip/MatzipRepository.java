@@ -25,14 +25,17 @@ public interface MatzipRepository {
 
     long countNearbyPlaces(String pointWkt, int radius);
 
-    List<PlaceWithDistance> findNearbyPlaces(String pointWkt, int radius, Pageable pageable);
-
     void saveAll(List<Place> placesToSave);
 
     Category saveCategory(Category newCategory);
 
     List<Category> categoryFindByNameIn(List<String> categoryNames);
 
+    Page<Place> findAllWithCategories(Pageable pageable);
 
+    List<PlaceWithDistance> findNearbyPlacesOrderByDistance(String pointWkt, int radius, Pageable pageable);
 
+    List<PlaceWithDistance> findNearbyPlacesOrderByName(String pointWkt, int radius, Pageable pageable);
+
+    List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(String pointWkt, int radius, Pageable pageable);
 }

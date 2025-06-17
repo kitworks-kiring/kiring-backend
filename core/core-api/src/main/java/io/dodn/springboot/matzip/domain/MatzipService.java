@@ -14,6 +14,7 @@ import io.dodn.springboot.storage.db.member.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,18 +39,15 @@ public class MatzipService {
             final Long memberId,
             final Pageable pageable
     ) {
-        // 1. 맛집 목록을 페이지네이션하여 조회합니다.
-        Page<Place> places = matzipRepository.findAll(pageable);
+//        Page<Place> places = matzipRepository.findAll(pageable);
+        Page<Place> places = matzipRepository.findAllWithCategories(pageable);
         List<Place> placeList = places.getContent();
 
         if (placeList.isEmpty()) {
             return Page.empty(pageable);
         }
-
-        // 2. 현재 로그인한 사용자의 좋아요 상태를 확인합니다.
         Set<Long> likedPlaceIds = getLikedPlaceIds(memberId, placeList);
 
-        // 3. Place 엔티티를 PlaceResponse DTO로 변환하면서, 좋아요 상태를 설정합니다.
         return places.map(place ->
                 PlaceResponse.of(place, likedPlaceIds.contains(place.getId()))
         );
@@ -108,19 +106,39 @@ public class MatzipService {
             final double latitude,
             final double longitude,
             final int radius,
-            final Pageable pageable
-    ) {
-        // 네이티브 쿼리는 Pageable을 직접 처리하기 복잡하므로,
-        // 전체 개수를 따로 조회하고 직접 Page 객체를 만듭니다.
+            final Pageable pageable) {
         String pointWkt = String.format("POINT(%f %f)", latitude, longitude);
+
+        // 정렬 조건에 따라 분기 처리
+        String sortProperty = getSortProperty(pageable);
+
+        List<PlaceWithDistance> results;
         long totalCount = matzipRepository.countNearbyPlaces(pointWkt, radius);
 
-        List<PlaceWithDistance> results = matzipRepository.findNearbyPlaces(pointWkt, radius, pageable);
+        results = switch (sortProperty) {
+            case "likeCount" ->
+                // 좋아요 순으로 정렬하는 쿼리 호출
+                    matzipRepository.findNearbyPlacesOrderByLikeCount(pointWkt, radius, pageable);
+            case "name" ->
+                // 이름 순으로 정렬하는 쿼리 호출
+                    matzipRepository.findNearbyPlacesOrderByName(pointWkt, radius, pageable);
+            default ->
+                // 기본값 또는 거리순으로 정렬하는 쿼리 호출
+                    matzipRepository.findNearbyPlacesOrderByDistance(pointWkt, radius, pageable);
+        };
 
-        List<NearbyPlaceResponse> dtos = results.stream()
+        List<NearbyPlaceResponse> placeResponses = results.stream()
                 .map(NearbyPlaceResponse::fromProjection)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(dtos, pageable, totalCount);
+        return new PageImpl<>(placeResponses, pageable, totalCount);
+    }
+
+    private String getSortProperty(Pageable pageable) {
+        // Pageable 에서 첫 번째 정렬 조건을 가져옵니다. 없으면 "distance"를 기본값으로.
+        return pageable.getSort().stream()
+                .map(Sort.Order::getProperty)
+                .findFirst()
+                .orElse("distance");
     }
 }

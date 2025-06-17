@@ -8,6 +8,7 @@ import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,12 +45,20 @@ public interface MatzipDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공",
                     content = @Content(schema = @Schema(implementation = Page.class))) // NearbyPlaceResponse를 감싸는 Page
     })
+    @Parameters({
+            @Parameter(name = "page", description = "조회할 페이지 번호 (0부터 시작)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
+            @Parameter(name = "size", description = "한 페이지에 보여줄 데이터 개수", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
+            @Parameter(name = "sort", description = "정렬 기준 - 형식: '속성명,정렬방향'. (예: likeCount,desc)",
+                    example = "likeCount,desc", schema = @Schema(type = "string"))
+    })
     public ApiResponse<CustomPageResponse<NearbyPlaceResponse>> findNearbyPlaces(
             @Parameter(name = "lat", description = "현재 위치의 위도", required = true, example = "37.53313") @RequestParam("lat") double latitude,
             @Parameter(name = "lon", description = "현재 위치의 경도", required = true, example = "126.904091") @RequestParam("lon") double longitude,
             @Parameter(name = "radius", description = "검색 반경(미터 단위)", example = "1000") @RequestParam(value = "radius", defaultValue = "1000") int radius,
             @Parameter(hidden = true) Pageable pageable // Pageable은 Swagger에서 자동으로 파라미터들을 생성해줍니다.
     );
+
+
 }
 
 

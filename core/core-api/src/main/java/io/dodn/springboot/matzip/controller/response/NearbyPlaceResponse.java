@@ -8,6 +8,7 @@ public record NearbyPlaceResponse(
         String address,
         String phoneNumber,
         String description,
+        int likeCount,
         double latitude,
         double longitude,
         Double distanceInMeters // ★ 내 위치로부터의 거리 (미터)
@@ -19,6 +20,7 @@ public record NearbyPlaceResponse(
                 place.getAddress(),
                 place.getPhoneNumber(),
                 place.getDescription(),
+                place.getLikeCount(),
                 place.getLatitude(),
                 place.getLongitude(),
                 place.getDistance()

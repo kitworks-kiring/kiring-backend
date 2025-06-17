@@ -107,6 +107,10 @@ public class Place extends BaseEntity {
         return category;
     }
 
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
     public void setCategories(final Set<Category> categories) {
         this.categories = categories;
     }
