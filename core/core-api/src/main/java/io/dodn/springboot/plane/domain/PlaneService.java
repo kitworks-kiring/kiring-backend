@@ -48,9 +48,9 @@ public class PlaneService {
 
         boolean alreadySentToday = planeRepository.existsBySenderAndCreatedAtBetween(sender, startOfDay, endOfDay);
 
-        if (alreadySentToday) {
-            throw new CoreException(ErrorType.ERR_1006, "같은 사람에게는 하루에 한 번만 쪽지를 보낼 수 있습니다.");
-        }
+//        if (alreadySentToday) {
+//            throw new CoreException(ErrorType.ERR_1006, "하루에 한 번만 쪽지를 보낼 수 있습니다.");
+//        }
 
         final Plane plane = Plane.create(
                 sender,
