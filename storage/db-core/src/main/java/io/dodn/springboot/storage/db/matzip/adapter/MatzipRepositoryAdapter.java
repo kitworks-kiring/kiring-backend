@@ -2,8 +2,10 @@ package io.dodn.springboot.storage.db.matzip.adapter;
 
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
 import io.dodn.springboot.storage.db.matzip.PlaceWithDistance;
+import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
+import io.dodn.springboot.storage.db.matzip.repository.CategoryJpaRepository;
 import io.dodn.springboot.storage.db.matzip.repository.MenuJpaRepository;
 import io.dodn.springboot.storage.db.matzip.repository.PlaceJpaRepository;
 import io.dodn.springboot.storage.db.matzip.repository.PlaceLikeJpaRepository;
@@ -20,11 +22,13 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
     private final MenuJpaRepository menuJpaRepository;
     private final PlaceJpaRepository placeJpaRepository;
     private final PlaceLikeJpaRepository placeLikeJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
 
-    public MatzipRepositoryAdapter(final MenuJpaRepository menuJpaRepository, final PlaceJpaRepository placeJpaRepository, final PlaceLikeJpaRepository placeLikeJpaRepository) {
+    public MatzipRepositoryAdapter(final MenuJpaRepository menuJpaRepository, final PlaceJpaRepository placeJpaRepository, final PlaceLikeJpaRepository placeLikeJpaRepository, final CategoryJpaRepository categoryJpaRepository) {
         this.menuJpaRepository = menuJpaRepository;
         this.placeJpaRepository = placeJpaRepository;
         this.placeLikeJpaRepository = placeLikeJpaRepository;
+        this.categoryJpaRepository = categoryJpaRepository;
     }
 
 
@@ -67,6 +71,21 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
     @Override
     public List<PlaceWithDistance> findNearbyPlaces(final String pointWkt, final int radius, final Pageable pageable) {
         return placeJpaRepository.findNearbyPlaces(pointWkt, radius, pageable);
+    }
+
+    @Override
+    public void saveAll(final List<Place> placesToSave) {
+        placeJpaRepository.saveAll(placesToSave);
+    }
+
+    @Override
+    public Category saveCategory(final Category newCategory) {
+        return categoryJpaRepository.save(newCategory);
+    }
+
+    @Override
+    public List<Category> categoryFindByNameIn(final List<String> categoryNames) {
+        return categoryJpaRepository.findByNameIn(categoryNames);
     }
 
 

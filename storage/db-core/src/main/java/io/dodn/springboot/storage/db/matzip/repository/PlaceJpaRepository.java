@@ -22,7 +22,8 @@ public interface PlaceJpaRepository extends JpaRepository<Place, Long> {
                     " p.id AS placeId, p.name, p.address, p.address, p.description, " +
                     " ST_X(p.location) AS longitude, " +
                     " ST_Y(p.location) AS latitude, " +
-                    " ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) AS distance " +
+                    " ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) AS distance, " +
+                    " p.phone_number AS phoneNumber " +
                     "FROM place p " +
                     "WHERE ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) <= :radius " +
                     "ORDER BY distance " +

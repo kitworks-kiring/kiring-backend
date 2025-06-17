@@ -1,5 +1,6 @@
 package io.dodn.springboot.storage.db.matzip;
 
+import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import org.springframework.data.domain.Page;
@@ -25,4 +26,13 @@ public interface MatzipRepository {
     long countNearbyPlaces(String pointWkt, int radius);
 
     List<PlaceWithDistance> findNearbyPlaces(String pointWkt, int radius, Pageable pageable);
+
+    void saveAll(List<Place> placesToSave);
+
+    Category saveCategory(Category newCategory);
+
+    List<Category> categoryFindByNameIn(List<String> categoryNames);
+
+
+
 }

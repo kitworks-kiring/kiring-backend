@@ -44,7 +44,7 @@ public interface MatzipDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공",
                     content = @Content(schema = @Schema(implementation = Page.class))) // NearbyPlaceResponse를 감싸는 Page
     })
-    ApiResponse<Page<NearbyPlaceResponse>> findNearbyPlaces(
+    public ApiResponse<CustomPageResponse<NearbyPlaceResponse>> findNearbyPlaces(
             @Parameter(name = "lat", description = "현재 위치의 위도", required = true, example = "37.53313") @RequestParam("lat") double latitude,
             @Parameter(name = "lon", description = "현재 위치의 경도", required = true, example = "126.904091") @RequestParam("lon") double longitude,
             @Parameter(name = "radius", description = "검색 반경(미터 단위)", example = "1000") @RequestParam(value = "radius", defaultValue = "1000") int radius,
