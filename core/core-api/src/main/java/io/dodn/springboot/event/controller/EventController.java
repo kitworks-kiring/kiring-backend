@@ -1,6 +1,7 @@
 package io.dodn.springboot.event.controller;
 
 import io.dodn.springboot.common.support.response.ApiResponse;
+import io.dodn.springboot.common.swagger.EventDocs;
 import io.dodn.springboot.event.controller.response.CalendarEventResponse;
 import io.dodn.springboot.event.controller.response.DailyEventsResponse;
 import io.dodn.springboot.event.domain.EventService;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/event")
-public class EventController {
+public class EventController implements EventDocs {
     private final EventService eventService;
 
     public EventController(final EventService eventService) {
