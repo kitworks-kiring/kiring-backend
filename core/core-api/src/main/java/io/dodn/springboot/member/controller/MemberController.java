@@ -12,6 +12,7 @@ import io.dodn.springboot.storage.db.member.entity.Member;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ public class MemberController implements MemberDocs {
     }
 
     @GetMapping("/me")
-    public ApiResponse<MemberResponse> getMemberById(
+    public ApiResponse<MemberResponse> getMemberByIdMe(
             @Parameter(hidden = true) @LoginUser final Long memberId
     ) {
         return ApiResponse.success(MemberResponse.of(memberService.findMemberById(memberId)));
@@ -71,6 +72,13 @@ public class MemberController implements MemberDocs {
                 .toList();
 
         return ApiResponse.success(imageUrls);
+    }
+
+    @GetMapping("/{memberId}")
+    public ApiResponse<MemberResponse> getMemberById(
+            @PathVariable("memberId") final Long memberId
+    ) {
+        return ApiResponse.success(MemberResponse.of(memberService.findMemberById(memberId)));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

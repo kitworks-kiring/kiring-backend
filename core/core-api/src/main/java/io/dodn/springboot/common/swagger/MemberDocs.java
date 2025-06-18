@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,7 +27,7 @@ public interface MemberDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "회원이 존재하지 않음")
     })
-    ApiResponse<MemberResponse> getMemberById(
+    ApiResponse<MemberResponse> getMemberByIdMe(
             @Parameter(hidden = true) @LoginUser Long memberId
     );
 
@@ -81,4 +82,16 @@ public interface MemberDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공")
     })
     public ApiResponse<List<ImageUrlResponse>> getMemberUrls();
+
+
+    @Operation(summary = "멤버 정보 조회", description = "memberId 에 해당하는 사용자의 정보를 조회합니다.", tags = { "Member Management" })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "회원이 존재하지 않음")
+    })
+    public ApiResponse<MemberResponse> getMemberById(
+            @PathVariable("memberId") final Long memberId
+    );
 }
