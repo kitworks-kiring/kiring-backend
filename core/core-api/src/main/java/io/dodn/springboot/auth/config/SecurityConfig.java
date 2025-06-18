@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login/oauth2/code/**",
                                 "/oauth2/**", // OAuth2 인증 관련 API 접근 허용
+                                "/api/v1/auth/refresh", // RefreshToken API 허용
                                 "/login/oauth2/**", // 카카오 OAuth2 로그인 콜백
                                 "/swagger-ui.html", // Swagger UI 접근 허용
                                 "/swagger-ui/**", // Swagger UI 리소스 접근 허용

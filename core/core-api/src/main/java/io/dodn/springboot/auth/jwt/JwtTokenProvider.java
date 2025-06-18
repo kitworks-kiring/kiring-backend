@@ -116,6 +116,26 @@ public class JwtTokenProvider {
         }
     }
 
+    public Claims validationRefreshToeknAndGetClaims(String refreshToken) {
+        try {
+            log.debug("Validation refresh token '{}' ", refreshToken);
+            return Jwts.parserBuilder()
+                    .setSigningKey(this.key)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token: {}", e.getMessage());
+            throw new CoreException(ErrorType.ERR_1009, "Expired JWT token");
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            throw new CoreException(ErrorType.ERR_1010, "Invalid JWT token");
+        } catch (Exception e) {
+            log.error("ERROR JWT token: {}", e.getMessage());
+            throw new CoreException(ErrorType.ERR_1010, "ERROR JWT TOKEN");
+        }
+    }
+
     private Claims parseClaims(final String accessToken) {
         try {
             log.debug("Parsing token: '[{}]'", accessToken);

@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -56,7 +55,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             log.info("Kakao User Info (converted): ID={}, Nickname={}, Email={}", kakaoUserInfo.id(), kakaoUserInfo.getNickname(), kakaoUserInfo.getEmail());
         try {
             Member member = memberService.findOrCreateMemberByKakaoInfo(kakaoUserInfo);
-            List<GrantedAuthority> authorities = getAuthoritiesForUser(member);
+            List<SimpleGrantedAuthority> authorities = getAuthoritiesForUser(member);
 
             final TokenInfo tokenInfo = jwtTokenProvider.generateToken(String.valueOf(member.getId()), authorities);
             log.info("애플리케이션 JWT 발급: {}", tokenInfo);
@@ -110,15 +109,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
 
-    private List<GrantedAuthority> getAuthoritiesForUser(final Member member) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
+    private List<SimpleGrantedAuthority> getAuthoritiesForUser(final Member member) {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         // 사용자의 권한을 Enum으로 체크하여 권한을 리스트에 추가
         if (member.isAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else {
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
         return authorities;
     }

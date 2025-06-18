@@ -19,6 +19,8 @@ public enum ErrorType {
     ERR_1006(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, "이미 쪽지를 보냈습니다.", LogLevel.ERROR),
     ERR_1007(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, "파일이 비어있습니다.", LogLevel.ERROR),
     ERR_1008(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, "데이터 삽입중 오류가 발생했습니다.", LogLevel.ERROR),
+    ERR_1009(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, "리프레시 토큰이 만료되었습니다.", LogLevel.ERROR),
+    ERR_1010(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, "유효하지 않은 리프레시 토큰.", LogLevel.ERROR),
     ERR_1099(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.", LogLevel.ERROR);
 
 
