@@ -25,21 +25,6 @@ public interface PlaceJpaRepository extends JpaRepository<Place, Long> {
     )
     long countNearbyPlaces(@Param("point") String point, @Param("radius") int radius);
 
-//    @Query(
-//            value = "SELECT " +
-//                    " p.id AS placeId, p.name, p.address, p.address, p.description, " +
-//                    " ST_X(p.location) AS longitude, " +
-//                    " ST_Y(p.location) AS latitude, " +
-//                    " ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) AS distance, " +
-//                    " p.phone_number AS phoneNumber " +
-//                    "FROM place p " +
-//                    "WHERE ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) <= :radius " +
-//                    "ORDER BY distance " +
-//                    "LIMIT :#{#pageable.pageSize} OFFSET :#{#pageable.offset}",
-//            nativeQuery = true
-//    )
-//    List<PlaceWithDistance> findNearbyPlaces(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
-
     @Query(value = "SELECT DISTINCT p FROM Place p LEFT JOIN FETCH p.categories",
             countQuery = "SELECT COUNT(p) FROM Place p")
     Page<Place> findAllWithCategories(Pageable pageable);
@@ -61,10 +46,10 @@ public interface PlaceJpaRepository extends JpaRepository<Place, Long> {
     )
     List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
 
-    // 이름순 정렬
+    // 최신순 정렬
     @Query(
             value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
-                    "ORDER BY p.name ASC, distance ASC " ,
+                    "ORDER BY p.id desc, distance ASC " ,
             nativeQuery = true
     )
     List<PlaceWithDistance> findNearbyPlacesOrderByName(@Param("point") String point, @Param("radius") int radius, Pageable pageable);

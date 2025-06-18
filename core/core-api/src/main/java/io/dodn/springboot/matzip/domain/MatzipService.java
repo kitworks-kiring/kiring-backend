@@ -39,7 +39,6 @@ public class MatzipService {
             final Long memberId,
             final Pageable pageable
     ) {
-//        Page<Place> places = matzipRepository.findAll(pageable);
         Page<Place> places = matzipRepository.findAllWithCategories(pageable);
         List<Place> placeList = places.getContent();
 
@@ -119,7 +118,7 @@ public class MatzipService {
             case "likeCount" ->
                 // 좋아요 순으로 정렬하는 쿼리 호출
                     matzipRepository.findNearbyPlacesOrderByLikeCount(pointWkt, radius, pageable);
-            case "name" ->
+            case "id" ->
                 // 이름 순으로 정렬하는 쿼리 호출
                     matzipRepository.findNearbyPlacesOrderByName(pointWkt, radius, pageable);
             default ->
