@@ -14,10 +14,11 @@ spring:
       client:
         registration:
           kakao:
-            client-id: 9aebe1e49481851b5f2926e02e59500a
-            client-secret: zNvmJgdyPC6arlK2pGiFAfES2xRy0fKk
+#            client-id: 9aebe1e49481851b5f2926e02e59500a
+            client-id: a5b6241a2b7b4a84498c605475fe2b07
+#            client-secret: zNvmJgdyPC6arlK2pGiFAfES2xRy0fKk
+            client-secret: WFQrG7VFVbqU4BhVTm82Pbi6cYOw000o
             client-authentication-method: client_secret_post
-#            redirect-uri: http://localhost:8080/api/v1/oauth/kakao/callback
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-name: kakao
@@ -36,6 +37,7 @@ kakao:
 
 
 server:
+  forward-headers-strategy: native
   tomcat:
     max-connections: 20000
     threads:

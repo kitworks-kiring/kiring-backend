@@ -62,4 +62,7 @@ dependencies {
     // Feign Client (Kakao API 통신용)
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // Spring Cloud BOM 설정 필요
 
+    // Apache POI for Excel (.xlsx) - 엑셀 파일 처리를 위한 라이브러리
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+
 }

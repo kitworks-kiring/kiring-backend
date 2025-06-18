@@ -70,5 +70,10 @@ public class MemberRepositoryAdapter implements MemberRepository {
         return memberJpaRepository.findByPhone(s);
     }
 
+    @Override
+    public List<Member> findMembersWithBirthdayInMonth(final String monthString) {
+        return memberJpaRepository.findMembersWithBirthdayInMonth(monthString);
+    }
+
 
 }

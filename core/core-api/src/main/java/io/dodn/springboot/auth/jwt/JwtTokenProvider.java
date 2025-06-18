@@ -35,7 +35,7 @@ public class JwtTokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; //30분
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = ACCESS_TOKEN_EXPIRE_TIME * 2; // Refresh token은 2배로 설정
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30;
     private Key key;
 
     @Value("${jwt.secret}")
@@ -113,6 +113,26 @@ public class JwtTokenProvider {
         } catch (Exception e) {
             log.error("JWT token 오류: {}", e.getMessage());
             throw new CoreException(ErrorType.FAILED_KAKAO, "JWT token 오류");
+        }
+    }
+
+    public Claims validationRefreshToeknAndGetClaims(String refreshToken) {
+        try {
+            log.debug("Validation refresh token '{}' ", refreshToken);
+            return Jwts.parserBuilder()
+                    .setSigningKey(this.key)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token: {}", e.getMessage());
+            throw new CoreException(ErrorType.ERR_1009, "Expired JWT token");
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            throw new CoreException(ErrorType.ERR_1010, "Invalid JWT token");
+        } catch (Exception e) {
+            log.error("ERROR JWT token: {}", e.getMessage());
+            throw new CoreException(ErrorType.ERR_1010, "ERROR JWT TOKEN");
         }
     }
 

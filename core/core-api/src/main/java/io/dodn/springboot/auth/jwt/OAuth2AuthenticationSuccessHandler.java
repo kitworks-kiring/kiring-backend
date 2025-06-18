@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dodn.springboot.auth.jwt.dto.TokenInfo;
 import io.dodn.springboot.auth.kakao.dto.KakaoUserInfoResponse;
 import io.dodn.springboot.common.support.error.ErrorType;
-import io.dodn.springboot.common.support.response.ApiResponse;
 import io.dodn.springboot.member.domain.MemberService;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
+import io.dodn.springboot.member.exception.NotFoundPhoneException;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -56,18 +55,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             log.info("Kakao User Info (converted): ID={}, Nickname={}, Email={}", kakaoUserInfo.id(), kakaoUserInfo.getNickname(), kakaoUserInfo.getEmail());
         try {
             Member member = memberService.findOrCreateMemberByKakaoInfo(kakaoUserInfo);
-            List<GrantedAuthority> authorities = getAuthoritiesForUser(member);
+            List<SimpleGrantedAuthority> authorities = getAuthoritiesForUser(member);
 
             final TokenInfo tokenInfo = jwtTokenProvider.generateToken(String.valueOf(member.getId()), authorities);
             log.info("애플리케이션 JWT 발급: {}", tokenInfo);
 
-//            // --- JSON 응답으로 직접 TokenInfo 보내기 ---
-//            response.setStatus(HttpStatus.OK.value()); // HTTP 상태 코드 200 OK
-//            response.setContentType(MediaType.APPLICATION_JSON_VALUE); // Content Type을 JSON으로 설정
-//            response.setCharacterEncoding("UTF-8"); // 문자 인코딩 설정
-//
-//            // TokenInfo 객체를 JSON 문자열로 변환하여 응답 본문에 작성
-//            objectMapper.writeValue(response.getWriter(), tokenInfo);
             final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
                             .queryParam("accessToken", tokenInfo.accessToken())
                             .queryParam("refreshToken", tokenInfo.refreshToken())
@@ -76,37 +68,55 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
 
         } catch (NotFoundMemberException e) {
-            // 3. 실패: 사용자를 찾을 수 없다는 예외 발생 시 회원가입 페이지로 리다이렉트
+            // 3. 실패: 사용자를 찾을 수 없다는 예외 발생 시 회원가입 페이지로 리다이렉트 , 폰번호가 없는 경우도 추가
             log.info("가입되지 않은 사용자입니다. 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
 
             final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
-                    .queryParam("email", kakaoUserInfo.getEmail())
-                    .queryParam("nickname", kakaoUserInfo.getNickname())
-                    .queryParam("profileImageUrl", kakaoUserInfo.getProfileImageUrl())
-                    .queryParam("kakaoId", String.valueOf(kakaoUserInfo.id()))
+                    .queryParam("errorCode", ErrorType.ERR_1001)
+                    .queryParam("errorMessage", ErrorType.ERR_1001.getMessage())
+                    .build()
+                    .encode() // URL 인코딩
+                    .toUriString();
+
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } catch (NotFoundPhoneException e) {
+            // 3. 실패: 사용자를 찾을 수 없다는 예외 발생 시 회원가입 페이지로 리다이렉트 , 폰번호가 없는 경우도 추가
+            log.info("계정에 폰번호가 없습니다. 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
+
+            final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
+                    .queryParam("errorCode", ErrorType.ERR_1003)
+                    .queryParam("errorMessage", ErrorType.ERR_1003.getMessage())
                     .build()
                     .encode() // URL 인코딩
                     .toUriString();
 
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         } catch (Exception e) {
-            ApiResponse<?> errorResponse = ApiResponse.error(ErrorType.DEFAULT_ERROR, e.getMessage());
-            objectMapper.writeValue(response.getWriter(), errorResponse);
+            // 3. 실패: 계정에 폰번호가 없거나 나머지 서버 에러
+            log.info("서버 에러 추가 정보 입력 페이지로 리다이렉트합니다. Kakao User Info: {}", kakaoUserInfo);
+
+            final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
+                    .queryParam("errorCode", ErrorType.ERR_1099)
+                    .queryParam("errorMessage", ErrorType.ERR_1099.getMessage())
+                    .build()
+                    .encode() // URL 인코딩
+                    .toUriString();
+
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
         } finally {
             clearAuthenticationAttributes(request);
         }
     }
 
 
-    private List<GrantedAuthority> getAuthoritiesForUser(final Member member) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
+    private List<SimpleGrantedAuthority> getAuthoritiesForUser(final Member member) {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         // 사용자의 권한을 Enum으로 체크하여 권한을 리스트에 추가
         if (member.isAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else {
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
         return authorities;
     }

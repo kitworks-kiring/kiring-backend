@@ -1,5 +1,6 @@
 package io.dodn.springboot.auth.config;
 
+import io.dodn.springboot.auth.jwt.CustomOAuth2AuthorizationRequestResolver;
 import io.dodn.springboot.auth.jwt.JwtAuthenticationFilter;
 import io.dodn.springboot.auth.jwt.JwtTokenProvider;
 import io.dodn.springboot.auth.jwt.KakaoLogoutSuccessHandler;
@@ -29,11 +30,14 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler; // 카카오 로그아웃 성공 핸들러
+    private final CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver; // ★★★ 주입 ★★★
 
-    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler) {
+
+    public SecurityConfig(final JwtTokenProvider jwtTokenProvider, final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, final KakaoLogoutSuccessHandler kakaoLogoutSuccessHandler, final CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.kakaoLogoutSuccessHandler = kakaoLogoutSuccessHandler;
+        this.customOAuth2AuthorizationRequestResolver = customOAuth2AuthorizationRequestResolver;
     }
 
     @Bean
@@ -47,19 +51,26 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/login/oauth2/code/**",
                                 "/oauth2/**", // OAuth2 인증 관련 API 접근 허용
+                                "/api/v1/auth/refresh", // RefreshToken API 허용
                                 "/login/oauth2/**", // 카카오 OAuth2 로그인 콜백
                                 "/swagger-ui.html", // Swagger UI 접근 허용
                                 "/swagger-ui/**", // Swagger UI 리소스 접근 허용
                                 "/v3/api-docs/**", // Swagger API 문서 접근 허용
-                                "/auth/logout" // 로그아웃 경로는 인증된 사용자가 호출할 수 있도록 authenticated()에 두거나,
+                                "/auth/logout", // 로그아웃 경로는 인증된 사용자가 호출할 수 있도록 authenticated()에 두거나,
+                                "/api/v1/matzip/**",
+                                "/api/v1/member/**",
+                                "/api/v1/health/**"
                         ).permitAll()// API 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(auth -> auth
+                                .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver) // 커스텀 리졸버 등록
+                        )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .logout(logout -> logout
@@ -76,8 +87,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "https://localhost:*", "http://43.202.199.39"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "https://localhost:*", "https://*.vercel.app"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS","HEAD"));
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L); // Preflight 요청 캐시 시간 (1시간)

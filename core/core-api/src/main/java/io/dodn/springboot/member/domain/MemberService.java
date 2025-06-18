@@ -2,12 +2,14 @@ package io.dodn.springboot.member.domain;
 
 import io.dodn.springboot.auth.kakao.dto.KakaoUserInfoResponse;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
+import io.dodn.springboot.member.exception.NotFoundPhoneException;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -21,16 +23,16 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    public Member createMember(Member member) {
+    public Member createMember(final Member member) {
         return memberRepository.save(member);
     }
 
-    public Member findMemberById(Long id) {
+    public Member findMemberById(final Long id) {
         return memberRepository.findById(id)
             .orElseThrow(() -> new NotFoundMemberException("Member not found with id: " + id));
     }
 
-    public void deleteMember(Long id) {
+    public void deleteMember(final Long id) {
         memberRepository.deleteById(id);
     }
 
@@ -69,6 +71,9 @@ public class MemberService {
     }
 
     private String changePhoneNumber(String phoneNumber) {
+        if (!StringUtils.hasText(phoneNumber)) {
+            throw new NotFoundPhoneException("폰번호가 존재하지 않습니다.");
+        }
         return "0".concat(phoneNumber.substring(4));
     }
 }
