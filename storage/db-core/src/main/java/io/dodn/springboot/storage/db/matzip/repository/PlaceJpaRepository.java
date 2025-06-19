@@ -13,7 +13,7 @@ import java.util.List;
 public interface PlaceJpaRepository extends JpaRepository<Place, Long> {
     // 공통 SELECT 구문 정의 (중복 제거)
     String SELECT_CLAUSE = "SELECT " +
-            "p.id AS placeId, p.name, p.address, p.phone_number AS phoneNumber, p.like_count AS likeCount, " +
+            "p.id AS placeId, p.name, p.address, p.phone_number AS phoneNumber, p.like_count AS likeCount, p.kiring_category AS kiringCategory, " +
             "ST_X(p.location) AS longitude, ST_Y(p.location) AS latitude, " +
             "ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) AS distance ";
     String FROM_WHERE_CLAUSE = "FROM place p WHERE ST_Distance_Sphere(p.location, ST_PointFromText(:point, 4326)) <= :radius ";

@@ -10,4 +10,6 @@ public interface PlaceWithDistance {
     Double getLongitude();
     Double getLatitude();
     Double getDistance();
+
+    String getkiringCategory();
 }
