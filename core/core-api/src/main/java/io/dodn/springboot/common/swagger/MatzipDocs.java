@@ -24,6 +24,12 @@ public interface MatzipDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공",
                     content = @Content(schema = @Schema(implementation = CustomPageResponse.class))) // PlaceResponse를 감싸는 CustomPageResponse
     })
+    @Parameters({
+            @Parameter(name = "page", description = "조회할 페이지 번호 (0부터 시작)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
+            @Parameter(name = "size", description = "한 페이지에 보여줄 데이터 개수", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
+            @Parameter(name = "sort", description = "정렬 기준 - 형식: '속성명,정렬방향'",
+                    example = "id,desc", schema = @Schema(type = "string"))
+    })
     ApiResponse<CustomPageResponse<PlaceResponse>> getAllPlaces(
             @Parameter(hidden = true) @LoginUser final Long memberId,
             @Parameter(hidden = true) Pageable pageable

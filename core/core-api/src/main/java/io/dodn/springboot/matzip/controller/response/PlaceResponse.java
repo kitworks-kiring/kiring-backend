@@ -4,6 +4,7 @@ import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import org.locationtech.jts.geom.Point;
 
+import java.util.List;
 import java.util.Set;
 
 public record PlaceResponse(
@@ -12,6 +13,7 @@ public record PlaceResponse(
         String address,
         String phoneNumber,
         String description,
+        List<String> kiringCategory,
         double latitude,
         double longitude,
         long likeCount, // 맛집의 총 좋아요 수
@@ -36,6 +38,7 @@ public record PlaceResponse(
                 place.getAddress(),
                 place.getPhoneNumber(),
                 place.getDescription(),
+                List.of(place.getCategory().split(",")),
                 pointX,
                 pointY,
                 place.getLikeCount(), // Place 엔티티에 getLikeCount() 메서드가 있다고 가정
