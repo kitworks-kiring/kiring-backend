@@ -51,10 +51,12 @@ public class MatzipController implements MatzipDocs {
     public ApiResponse<CustomPageResponse<NearbyPlaceResponse>> findNearbyPlaces(
             @RequestParam("lat") double latitude,
             @RequestParam("lon") double longitude,
+            @RequestParam(value = "categoryName", required = false) String categoryName,
             @RequestParam(value = "radius", defaultValue = "1000") int radius, // 기본 반경 1km
+            @Parameter(hidden = true) @LoginUser final Long memberId,
             Pageable pageable
     ) {
-        Page<NearbyPlaceResponse> nearbyPlaces = matzipService.findNearbyPlaces(latitude, longitude, radius, pageable);
+        Page<NearbyPlaceResponse> nearbyPlaces = matzipService.findNearbyPlaces(latitude, longitude, radius, categoryName ,pageable, memberId);
 
         CustomPageResponse<NearbyPlaceResponse> response = new CustomPageResponse<>(nearbyPlaces);
         return ApiResponse.success(response);

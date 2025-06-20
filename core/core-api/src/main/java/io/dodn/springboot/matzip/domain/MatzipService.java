@@ -6,20 +6,20 @@ import io.dodn.springboot.matzip.controller.response.PlaceResponse;
 import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
-import io.dodn.springboot.storage.db.matzip.PlaceWithDistance;
+import io.dodn.springboot.storage.db.matzip.dto.PlaceNearbyDto;
+import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -105,39 +105,33 @@ public class MatzipService {
             final double latitude,
             final double longitude,
             final int radius,
-            final Pageable pageable) {
-        String pointWkt = String.format("POINT(%f %f)", latitude, longitude);
+            final String categoryName,
+            final Pageable pageable,
+            final Long memberId
+    ) {
+        Long categoryId = null;
+        if (categoryName != null && !categoryName.isEmpty()) {
+            List<String> categoryNames = List.of(categoryName.trim().split(","));
+            List<Category> categories = matzipRepository.categoryFindByNameIn(categoryNames);
+            if (!categories.isEmpty()) {
+                categoryId = categories.getFirst().getId();
+            }
+        }
 
-        // 정렬 조건에 따라 분기 처리
-        String sortProperty = getSortProperty(pageable);
+        Page<PlaceNearbyDto> dtoPage = matzipRepository.findNearbyPlaces(latitude, longitude, radius, categoryId, pageable);
+        if (!dtoPage.hasContent()) {
+            return Page.empty(pageable);
+        }
 
-        List<PlaceWithDistance> results;
-        long totalCount = matzipRepository.countNearbyPlaces(pointWkt, radius);
-
-        results = switch (sortProperty) {
-            case "likeCount" ->
-                // 좋아요 순으로 정렬하는 쿼리 호출
-                    matzipRepository.findNearbyPlacesOrderByLikeCount(pointWkt, radius, pageable);
-            case "id" ->
-                // 이름 순으로 정렬하는 쿼리 호출
-                    matzipRepository.findNearbyPlacesOrderByName(pointWkt, radius, pageable);
-            default ->
-                // 기본값 또는 거리순으로 정렬하는 쿼리 호출
-                    matzipRepository.findNearbyPlacesOrderByDistance(pointWkt, radius, pageable);
-        };
-
-        List<NearbyPlaceResponse> placeResponses = results.stream()
-                .map(NearbyPlaceResponse::fromProjection)
+        List<PlaceNearbyDto> dos = dtoPage.getContent();
+        List<Long> placeIds = dos.stream()
+                .map(PlaceNearbyDto::placeId)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(placeResponses, pageable, totalCount);
-    }
 
-    private String getSortProperty(Pageable pageable) {
-        // Pageable 에서 첫 번째 정렬 조건을 가져옵니다. 없으면 "distance"를 기본값으로.
-        return pageable.getSort().stream()
-                .map(Sort.Order::getProperty)
-                .findFirst()
-                .orElse("distance");
+        final Set<Long> likedPlaceIds = matzipRepository.findLikedPlaceIdsByMemberAndPlaceIds(memberId, placeIds);
+        final Map<Long, List<String>> categoriesMap = matzipRepository.findCategoryNamesMapByPlaceIds(placeIds);
+
+        return dtoPage.map(dto -> NearbyPlaceResponse.from(dto, categoriesMap, likedPlaceIds.contains(dto.placeId())));
     }
 }

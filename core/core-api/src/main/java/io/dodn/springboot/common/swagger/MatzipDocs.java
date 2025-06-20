@@ -60,7 +60,9 @@ public interface MatzipDocs {
     public ApiResponse<CustomPageResponse<NearbyPlaceResponse>> findNearbyPlaces(
             @Parameter(name = "lat", description = "현재 위치의 위도", required = true, example = "37.53313") @RequestParam("lat") double latitude,
             @Parameter(name = "lon", description = "현재 위치의 경도", required = true, example = "126.904091") @RequestParam("lon") double longitude,
+            @Parameter(name = "categoryName", description = "카테고리 이름", example = "점심") @RequestParam(value = "categoryName", defaultValue = "점심") String categoryId,
             @Parameter(name = "radius", description = "검색 반경(미터 단위)", example = "1000") @RequestParam(value = "radius", defaultValue = "1000") int radius,
+            @Parameter(hidden = true) @LoginUser final Long memberId,
             @Parameter(hidden = true) Pageable pageable // Pageable은 Swagger에서 자동으로 파라미터들을 생성해줍니다.
     );
 

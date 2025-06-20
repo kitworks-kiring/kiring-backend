@@ -1,7 +1,7 @@
 package io.dodn.springboot.storage.db.matzip.adapter;
 
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
-import io.dodn.springboot.storage.db.matzip.PlaceWithDistance;
+import io.dodn.springboot.storage.db.matzip.dto.PlaceNearbyDto;
 import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -88,19 +89,29 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
         return placeJpaRepository.findAllWithCategories(pageable);
     }
 
+//    @Override
+//    public List<PlaceWithDistance> findNearbyPlacesOrderByDistance(final String pointWkt, final int radius, final Pageable pageable) {
+//        return placeJpaRepository.findNearbyPlacesOrderByDistance(pointWkt, radius, pageable);
+//    }
+//
+//    @Override
+//    public List<PlaceWithDistance> findNearbyPlacesOrderByName(final String pointWkt, final int radius, final Pageable pageable) {
+//        return placeJpaRepository.findNearbyPlacesOrderByName(pointWkt, radius, pageable);
+//    }
+//
+//    @Override
+//    public List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(final String pointWkt, final int radius, final Pageable pageable) {
+//        return placeJpaRepository.findNearbyPlacesOrderByLikeCount(pointWkt, radius, pageable);
+//    }
+
     @Override
-    public List<PlaceWithDistance> findNearbyPlacesOrderByDistance(final String pointWkt, final int radius, final Pageable pageable) {
-        return placeJpaRepository.findNearbyPlacesOrderByDistance(pointWkt, radius, pageable);
+    public Page<PlaceNearbyDto> findNearbyPlaces(final double latitude, final double longitude, final int radius, final Long categoryId, final Pageable pageable) {
+        return placeJpaRepository.findNearbyPlaces(latitude, longitude, radius, categoryId, pageable);
     }
 
     @Override
-    public List<PlaceWithDistance> findNearbyPlacesOrderByName(final String pointWkt, final int radius, final Pageable pageable) {
-        return placeJpaRepository.findNearbyPlacesOrderByName(pointWkt, radius, pageable);
-    }
-
-    @Override
-    public List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(final String pointWkt, final int radius, final Pageable pageable) {
-        return placeJpaRepository.findNearbyPlacesOrderByLikeCount(pointWkt, radius, pageable);
+    public Map<Long, List<String>> findCategoryNamesMapByPlaceIds(final List<Long> placeIds) {
+        return placeJpaRepository.findCategoryNamesMapByPlaceIds(placeIds);
     }
 
 

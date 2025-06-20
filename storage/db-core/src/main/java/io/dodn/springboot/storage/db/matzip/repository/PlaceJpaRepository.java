@@ -1,6 +1,5 @@
 package io.dodn.springboot.storage.db.matzip.repository;
 
-import io.dodn.springboot.storage.db.matzip.PlaceWithDistance;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,9 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
-public interface PlaceJpaRepository extends JpaRepository<Place, Long> {
+public interface PlaceJpaRepository extends JpaRepository<Place, Long>, PlaceRepositoryCustom {
     // 공통 SELECT 구문 정의 (중복 제거)
     String SELECT_CLAUSE = "SELECT " +
             "p.id AS placeId, p.name, p.address, p.phone_number AS phoneNumber, p.like_count AS likeCount, p.kiring_category AS kiringCategory, " +
@@ -30,28 +27,28 @@ public interface PlaceJpaRepository extends JpaRepository<Place, Long> {
     Page<Place> findAllWithCategories(Pageable pageable);
 
 
-    // 거리순 정렬 (기본)
-    @Query(
-            value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
-                    "ORDER BY distance ASC, p.like_count DESC ",
-            nativeQuery = true
-    )
-    List<PlaceWithDistance> findNearbyPlacesOrderByDistance(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
-
-    // 좋아요순 정렬
-    @Query(
-            value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
-                    "ORDER BY p.like_count DESC, distance ASC " ,
-            nativeQuery = true
-    )
-    List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
-
-    // 최신순 정렬
-    @Query(
-            value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
-                    "ORDER BY p.id desc, distance ASC " ,
-            nativeQuery = true
-    )
-    List<PlaceWithDistance> findNearbyPlacesOrderByName(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
+//    // 거리순 정렬 (기본)
+//    @Query(
+//            value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
+//                    "ORDER BY distance ASC, p.like_count DESC ",
+//            nativeQuery = true
+//    )
+//    List<PlaceWithDistance> findNearbyPlacesOrderByDistance(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
+//
+//    // 좋아요순 정렬
+//    @Query(
+//            value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
+//                    "ORDER BY p.like_count DESC, distance ASC " ,
+//            nativeQuery = true
+//    )
+//    List<PlaceWithDistance> findNearbyPlacesOrderByLikeCount(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
+//
+//    // 최신순 정렬
+//    @Query(
+//            value = SELECT_CLAUSE + FROM_WHERE_CLAUSE +
+//                    "ORDER BY p.id desc, distance ASC " ,
+//            nativeQuery = true
+//    )
+//    List<PlaceWithDistance> findNearbyPlacesOrderByName(@Param("point") String point, @Param("radius") int radius, Pageable pageable);
 
 }

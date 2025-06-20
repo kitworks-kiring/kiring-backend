@@ -11,5 +11,5 @@ public interface PlaceWithDistance {
     Double getLatitude();
     Double getDistance();
 
-    String getkiringCategory();
+    String getKiringCategory();
 }
