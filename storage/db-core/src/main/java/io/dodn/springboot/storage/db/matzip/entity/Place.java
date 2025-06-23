@@ -147,7 +147,7 @@ public class Place extends BaseEntity {
                 ", categories=" + categories +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", description='" + description + '\'' +
+                ", imageUrl='" + description + '\'' +
                 ", likeCount=" + likeCount +
                 ", location=" + location +
                 ", menus=" + menus +

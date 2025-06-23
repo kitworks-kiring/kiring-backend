@@ -15,8 +15,6 @@ public class EventRepositoryAdapter implements EventRepository {
     public EventRepositoryAdapter(final EventJpaRepository eventJpaRepository) {
         this.eventJpaRepository = eventJpaRepository;
     }
-
-
     @Override
     public List<Event> findEventsForPeriod(final LocalDateTime startDate, final LocalDateTime endDate) {
         return eventJpaRepository.findAllByStartDatetimeBetweenOrderByEventCategoryAsc(startDate, endDate);

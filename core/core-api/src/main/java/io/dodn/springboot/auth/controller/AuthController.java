@@ -19,7 +19,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @Operation(summary = "액세스 토큰 재발급", description = "만료된 액세스 토큰 대신 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.")
+    @Operation(summary = "액세스 토큰 재발급", description = "만료된 액세스 토큰 대신 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.", tags = { "Auth Controller" })
     @PostMapping("/refresh")
     public ApiResponse<TokenInfo> refreshToken(@RequestBody RefreshRequest request) {
         TokenInfo newTokenInfo = authService.refreshToken(request.refreshToken());

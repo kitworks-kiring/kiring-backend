@@ -3,8 +3,8 @@ package io.dodn.springboot.common.swagger;
 import io.dodn.springboot.common.annotation.LoginUser;
 import io.dodn.springboot.plane.controller.request.SendMessageRequest;
 import io.dodn.springboot.plane.controller.response.MessageResponse;
+import io.dodn.springboot.plane.controller.response.PlaneStatusResponse;
 import io.dodn.springboot.plane.controller.response.SendMessageResponse;
-import io.dodn.springboot.plane.controller.response.TodayMessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,12 +24,12 @@ public interface PlaneDocs {
     @Operation(summary = "쪽지 조회", description = "특정 회원이 쪽지를 조회하는 엔드포인트입니다.", tags = { "Plane Management" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공")})
     public io.dodn.springboot.common.support.response.ApiResponse<List<MessageResponse>> readMessage(
-            @Parameter(hidden = true) @LoginUser long readerId
+            @Parameter(hidden = true) @LoginUser Long readerId
     );
 
-    @Operation(summary = "쪽지 존재 여부", description = "오늘 받은 편지 존재 여부 API (팝업 알림용).", tags = { "Plane Management" })
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공")})
-    public io.dodn.springboot.common.support.response.ApiResponse<TodayMessageResponse> getTodayMessage(
-            @Parameter(hidden = true) @LoginUser long readerId
+    @Operation(summary = "오늘의 쪽지 현황", description = "특정 회원의 오늘 받은 쪽지 현황을 조회하는 엔드포인트입니다.", tags = { "Plane Management" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공") })
+    io.dodn.springboot.common.support.response.ApiResponse<PlaneStatusResponse> planeStatus(
+            @Parameter(hidden = true) @LoginUser Long readerId
     );
 }
