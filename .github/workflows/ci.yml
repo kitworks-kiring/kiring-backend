@@ -89,6 +89,7 @@ jobs:
               --name kiring-app \
               -- network kiring-net \
               -e SPRING_PROFILES_ACTIVE=dev \
+              -e SPRING_DATA_REDIS_HOST=kiring-redis \
               -e DB_HOST="${{ secrets.DB_HOST }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
