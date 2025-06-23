@@ -29,6 +29,10 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me # 사용자 정보 가져오는 URI
             user-name-attribute: id # 사용자 정보 응답에서 사용자 ID로 사용할 속성 이름
+  data:
+    redis:
+      host: localhost # Redis 서버 호스트 (환경에 맞게 변경)
+      port: 6379      # Redis 서버 포트
 
 kakao:
   logout:

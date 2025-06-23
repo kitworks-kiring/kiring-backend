@@ -65,4 +65,6 @@ dependencies {
     // Apache POI for Excel (.xlsx) - 엑셀 파일 처리를 위한 라이브러리
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }

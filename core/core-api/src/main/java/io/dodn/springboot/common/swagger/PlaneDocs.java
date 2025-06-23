@@ -24,12 +24,12 @@ public interface PlaneDocs {
     @Operation(summary = "쪽지 조회", description = "특정 회원이 쪽지를 조회하는 엔드포인트입니다.", tags = { "Plane Management" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공")})
     public io.dodn.springboot.common.support.response.ApiResponse<List<MessageResponse>> readMessage(
-            @Parameter(hidden = true) @LoginUser long readerId
+            @Parameter(hidden = true) @LoginUser Long readerId
     );
 
     @Operation(summary = "쪽지 존재 여부", description = "오늘 받은 편지 존재 여부 API (팝업 알림용).", tags = { "Plane Management" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "성공")})
     public io.dodn.springboot.common.support.response.ApiResponse<TodayMessageResponse> getTodayMessage(
-            @Parameter(hidden = true) @LoginUser long readerId
+            @Parameter(hidden = true) @LoginUser Long readerId
     );
 }

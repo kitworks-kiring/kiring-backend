@@ -5,10 +5,12 @@ import io.dodn.springboot.common.support.response.ApiResponse;
 import io.dodn.springboot.common.swagger.PlaneDocs;
 import io.dodn.springboot.plane.controller.request.SendMessageRequest;
 import io.dodn.springboot.plane.controller.response.MessageResponse;
+import io.dodn.springboot.plane.controller.response.PlaneStatusResponse;
 import io.dodn.springboot.plane.controller.response.SendMessageResponse;
 import io.dodn.springboot.plane.controller.response.TodayMessageResponse;
 import io.dodn.springboot.plane.domain.PlaneInfo;
 import io.dodn.springboot.plane.domain.PlaneService;
+import io.dodn.springboot.plane.domain.PlaneStatusInfo;
 import io.dodn.springboot.storage.db.plane.entity.Plane;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +41,7 @@ public class PlaneController implements PlaneDocs {
 
     @GetMapping("/read")
     public ApiResponse<List<MessageResponse>> readMessage(
-            @LoginUser long readerId
+            @LoginUser Long readerId
     ) {
         final List<PlaneInfo> planeInfos = planeService.readMessage(readerId);
 
@@ -51,8 +53,16 @@ public class PlaneController implements PlaneDocs {
     }
 
     @GetMapping("/today/message")
+    public ApiResponse<PlaneStatusResponse> planeStatus(
+            @LoginUser final Long readerId
+    ) {
+        PlaneStatusInfo planeStatus = planeService.getPlaneStatus(readerId);
+        return ApiResponse.success(PlaneStatusResponse.from(planeStatus));
+    }
+
+    @GetMapping("/today/message")
     public ApiResponse<TodayMessageResponse> getTodayMessage(
-            @LoginUser long readerId
+            @LoginUser final Long readerId
     ) {
         return ApiResponse.success(TodayMessageResponse.of(planeService.getTodayMessage(readerId)));
     }

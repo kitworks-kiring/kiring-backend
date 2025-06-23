@@ -39,4 +39,9 @@ public class PlaneRepositoryAdapter implements PlaneRepository {
     public List<Plane> findByReceiverIdAndCreatedAtBetween(final long readerId, final LocalDateTime startOfDay, final LocalDateTime endOfDay) {
         return planeJpaRepository.findByReceiverIdAndCreatedAtBetween(readerId, startOfDay, endOfDay);
     }
+
+    @Override
+    public long countBySenderIdAndCreatedAtBetween(final Long readerId, final LocalDateTime startOfDay, final LocalDateTime endOfDay) {
+        return planeJpaRepository.countBySenderIdAndCreatedAtBetween(readerId, startOfDay, endOfDay);
+    }
 }
