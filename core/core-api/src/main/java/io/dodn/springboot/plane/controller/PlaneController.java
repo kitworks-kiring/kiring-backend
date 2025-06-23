@@ -7,7 +7,6 @@ import io.dodn.springboot.plane.controller.request.SendMessageRequest;
 import io.dodn.springboot.plane.controller.response.MessageResponse;
 import io.dodn.springboot.plane.controller.response.PlaneStatusResponse;
 import io.dodn.springboot.plane.controller.response.SendMessageResponse;
-import io.dodn.springboot.plane.controller.response.TodayMessageResponse;
 import io.dodn.springboot.plane.domain.PlaneInfo;
 import io.dodn.springboot.plane.domain.PlaneService;
 import io.dodn.springboot.plane.domain.PlaneStatusInfo;
@@ -47,8 +46,8 @@ public class PlaneController implements PlaneDocs {
 
         return ApiResponse.success(
                 planeInfos.stream()
-                .map(MessageResponse::fromEntity)
-                .toList()
+                        .map(MessageResponse::fromEntity)
+                        .toList()
         );
     }
 
@@ -60,10 +59,4 @@ public class PlaneController implements PlaneDocs {
         return ApiResponse.success(PlaneStatusResponse.from(planeStatus));
     }
 
-    @GetMapping("/today/message")
-    public ApiResponse<TodayMessageResponse> getTodayMessage(
-            @LoginUser final Long readerId
-    ) {
-        return ApiResponse.success(TodayMessageResponse.of(planeService.getTodayMessage(readerId)));
-    }
 }

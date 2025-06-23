@@ -122,41 +122,37 @@ public class PlaneService {
         Set<String> recentHistory = recommendationCacheRepository.findRecentRecommendations(readerId);
 
         // 2-2. DB 에서 전체 멤버 목록을 가져와 ID Set 으로 변환
-        Set<String> allMemberIds = memberRepository.findAll().stream()
-                .map(member -> member.getId().toString())
-                .collect(Collectors.toSet());
+        Set<String> allMemberIds = getAllMemberIds();
 
         allMemberIds.removeAll(recentHistory);
         allMemberIds.remove(readerId.toString());
 
         if (allMemberIds.isEmpty()) {
-            // 1. 30일 추천 히스토리를 깨끗하게 비웁니다.
+            // 30일 추천 히스토리를 깨끗하게 비웁니다.
             recommendationCacheRepository.clearHistory(readerId);
-
-            // 2. 전체 멤버 목록을 다시 가져옵니다.
-            allMemberIds = memberRepository.findAll().stream()
-                    .map(member -> member.getId().toString())
-                    .collect(Collectors.toSet());
-
-            // 3. 자기 자신은 다시 제외합니다.
+            allMemberIds = getAllMemberIds();
             allMemberIds.remove(readerId.toString());
-
-            // 4. 히스토리를 초기화했음에도 추천할 멤버가 없다면 (사이트에 본인만 있는 경우),
             //    무한 루프를 방지하기 위해 null을 반환하고 종료합니다.
             if (allMemberIds.isEmpty()) {
                 return null;
             }
         }
 
-        // 2-5. 남은 후보 목록을 랜덤으로 섞어 한 명 선택
+        // 2-3. 남은 후보 목록을 랜덤으로 섞어 한 명 선택
         List<String> availableList = new ArrayList<>(allMemberIds);
         Collections.shuffle(availableList);
         String newRecommendedMemberId = availableList.getFirst();
 
-        // 3. 결과를 캐시에 저장 (가독성 향상)
+        // 3. 결과를 캐시에 저장
         recommendationCacheRepository.saveTodaysRecommendation(readerId, newRecommendedMemberId);
         recommendationCacheRepository.saveToRecentRecommendations(readerId, newRecommendedMemberId);
 
         return memberRepository.findById(Long.parseLong(newRecommendedMemberId)).orElse(null);
+    }
+
+    private Set<String> getAllMemberIds() {
+        return memberRepository.findAll().stream()
+                .map(member -> member.getId().toString())
+                .collect(Collectors.toSet());
     }
 }
