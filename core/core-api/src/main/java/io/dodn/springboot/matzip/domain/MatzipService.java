@@ -134,4 +134,26 @@ public class MatzipService {
 
         return dtoPage.map(dto -> NearbyPlaceResponse.from(dto, categoriesMap, likedPlaceIds.contains(dto.placeId())));
     }
+
+    @Transactional(readOnly = true)
+    public Page<PlaceResponse> findAllPlacesWithNPlusOne(final Long memberId, final Pageable pageable) {
+        Page<Place> places = matzipRepository.findAll(pageable);
+        List<Place> placeList = places.getContent();
+
+        if (placeList.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // N+1 문제를 의도적으로 발생시키기 위해 각 Place의 카테고리를 개별적으로 로드합니다.
+        for (Place place : placeList) {
+            place.getCategories().size(); // 이 호출이 N+1 문제를 발생시킵니다.
+        }
+
+        Set<Long> likedPlaceIds = getLikedPlaceIds(memberId, placeList);
+
+        return places.map(place ->
+                PlaceResponse.of(place, false)
+        );
+    }
+
 }
