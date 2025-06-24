@@ -35,7 +35,7 @@ public class RecommendationCacheRepositoryImpl implements RecommendationCacheRep
         Object result = redisTemplate.opsForValue().get(getDailyKey(userId));
         return Optional.ofNullable((String) result);
     }
-
+//    24시간 기준으로 캐시 만료 - 이전 코드에서는 24시간 기준으로 캐시 만료를 설정했지만, 현재는 자정 기준으로 만료되도록 변경
 //    @Override
 //    public void saveTodaysRecommendation(
 //            final Long userId,
