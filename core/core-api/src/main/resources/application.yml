@@ -34,6 +34,10 @@ spring:
       host: localhost # Redis 서버 호스트 (환경에 맞게 변경)
       port: 6379      # Redis 서버 포트
 
+encrypt:
+  key: vG8X7sFJ2jM6Q/Z7pTh5CZGq7Q1JmJj2k8Q6v5Ojlmo= # 32바이트 이상
+
+
 kakao:
   logout:
     uri: https://kauth.kakao.com/oauth/logout
