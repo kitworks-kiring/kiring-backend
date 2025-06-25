@@ -34,8 +34,8 @@ public class JwtTokenProvider {
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; //30분
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30;
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30; // 30일 임시로 리프레쉬토큰 연동전에 적용해놓음
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30; // 30일
     private Key key;
 
     @Value("${jwt.secret}")
