@@ -3,8 +3,6 @@ package io.dodn.springboot.matzip.domain;
 import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
 import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
-import io.dodn.springboot.matzip.domain.event.PlaceLikeCancelledEvent;
-import io.dodn.springboot.matzip.domain.event.PlaceLikedEvent;
 import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
@@ -14,7 +12,6 @@ import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,13 +28,10 @@ import java.util.stream.Collectors;
 public class MatzipService {
     private final MatzipRepository matzipRepository;
     private final MemberRepository memberRepository;
-    private final ApplicationEventPublisher eventPublisher; // 이벤트 발행기 주입
 
-
-    public MatzipService(final MatzipRepository matzipRepository, final MemberRepository memberRepository, final ApplicationEventPublisher eventPublisher) {
+    public MatzipService(final MatzipRepository matzipRepository, final MemberRepository memberRepository) {
         this.matzipRepository = matzipRepository;
         this.memberRepository = memberRepository;
-        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -80,30 +75,28 @@ public class MatzipService {
             final Long memberId,
             final Long placeId
     ) {
+        // 1. 기존 '좋아요' 기록이 있는지 확인합니다.
+        Optional<PlaceLike> existingLike = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId);
+
         Place place = matzipRepository.findByPlaceId(placeId)
                 .orElseThrow(() -> new NotFoundPlaceException("맛집을 찾을 수 없습니다."));
 
-        // isLiked 상태와 현재 likeCount 를 미리 조회
-        boolean isLiked = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId).isPresent();
-        long currentLikeCount = place.getLikeCount();
-
-        if (isLiked) {
-            // 좋아요 취소 로직
-            PlaceLike existingLike = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId).get();
-            matzipRepository.delete(existingLike);
-            // 이벤트 발행 (카운트 감소는 리스너가 담당)
-            eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
-            return new LikeToggleResponse(false, currentLikeCount - 1);
-
-        } else {
-            // 좋아요 추가 로직
+        // 2. '좋아요' 기록이 있다면 -> 좋아요 취소 (삭제 및 카운트 감소)
+        if (existingLike.isPresent()) {
+            matzipRepository.delete(existingLike.get());
+            place.decreaseLikeCount();
+            return new LikeToggleResponse(false, place.getLikeCount()); // isLiked: false, 업데이트된 카운트
+        }
+        // 3. '좋아요' 기록이 없다면 -> 좋아요 처리 (삽입 및 카운트 증가)
+        else {
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundMemberException("사용자를 찾을 수 없습니다."));
-            matzipRepository.save(new PlaceLike(member, place));
 
-            // 이벤트 발행 (카운트 증가는 리스너가 담당)
-            eventPublisher.publishEvent(new PlaceLikedEvent(placeId));
-            return new LikeToggleResponse(true, currentLikeCount + 1);
+            PlaceLike newLike = new PlaceLike(member, place);
+            matzipRepository.save(newLike);
+
+            place.increaseLikeCount();
+            return new LikeToggleResponse(true, place.getLikeCount()); // isLiked: true, 업데이트된 카운트
         }
     }
 

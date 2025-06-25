@@ -4,7 +4,6 @@ import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import org.locationtech.jts.geom.Point;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -33,19 +32,13 @@ public record PlaceResponse(
         final double pointX = locationPoint.getX();
         final double pointY = locationPoint.getY();
 
-        // category 필드가 null일 경우를 대비한 수정
-        List<String> kiringCategories = place.getCategory() == null ?
-                Collections.emptyList() :
-                List.of(place.getCategory().split(","));
-
-
         return new PlaceResponse(
                 place.getId(),
                 place.getName(),
                 place.getAddress(),
                 place.getPhoneNumber(),
                 place.getDescription(),
-                kiringCategories,
+                List.of(place.getCategory().split(",")),
                 pointX,
                 pointY,
                 place.getLikeCount(), // Place 엔티티에 getLikeCount() 메서드가 있다고 가정
