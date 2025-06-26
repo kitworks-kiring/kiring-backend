@@ -32,8 +32,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final ObjectMapper objectMapper; // ★★★ ObjectMapper 주입 ★★★
     private final MemberService memberService;
 
-    private final String frontendTargetUrl = "https://kiring.vercel.app/login/callback"; // 또는 다른 프론트엔드 경로
-//    private final String frontendTargetUrl = "http://localhost:3000/login/callback"; // 또는 다른 프론트엔드 경로
+//    private final String frontendTargetUrl = "https://kiring.vercel.app/login/callback"; // 또는 다른 프론트엔드 경로
+    private final String frontendTargetUrl = "http://localhost:3000/login/callback"; // 또는 다른 프론트엔드 경로
 
     public OAuth2AuthenticationSuccessHandler(final JwtTokenProvider jwtTokenProvider, final ObjectMapper objectMapper, final MemberService memberService) {
         this.jwtTokenProvider = jwtTokenProvider;
