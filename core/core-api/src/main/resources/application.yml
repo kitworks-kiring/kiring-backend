@@ -45,8 +45,8 @@ encrypt:
 kakao:
   logout:
     uri: https://kauth.kakao.com/oauth/logout
-#    client-logout-redirect-uri: https://kiring.vercel.app/login/callback
-    client-logout-redirect-uri: http://localhost:3000/login/callback
+    client-logout-redirect-uri: https://kiring.vercel.app/login/callback
+#    client-logout-redirect-uri: http://localhost:3000/login/callback
 
 
 server:
