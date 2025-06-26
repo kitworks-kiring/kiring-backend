@@ -39,7 +39,7 @@ spring:
       write-dates-as-timestamps: false
 
 encrypt:
-  key: vG8X7sFJ2jM6Q/Z7pTh5CZGq7Q1JmJj2k8Q6v5Ojlmo= # 32바이트 이상
+  key: vG8X7sFJ2jM6D/Z5pTh3CZGe7Q2JmJj2k7Q6v5Ojlmo= # 32바이트 이상
 
 
 kakao:

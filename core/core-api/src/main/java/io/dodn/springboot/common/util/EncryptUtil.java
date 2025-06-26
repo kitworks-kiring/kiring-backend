@@ -2,12 +2,14 @@ package io.dodn.springboot.common.util;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+@Component
 public class EncryptUtil {
     private static final String ALGORITHM = "AES";
 
@@ -18,7 +20,11 @@ public class EncryptUtil {
 
     @PostConstruct
     public void init() {
-        KEY = Base64.getDecoder().decode(keyString);
+        synchronized (EncryptUtil.class) {
+            if (KEY == null) {
+                KEY = Base64.getDecoder().decode(keyString);
+            }
+        }
     }
 
     public static String encrypt(String value) {
