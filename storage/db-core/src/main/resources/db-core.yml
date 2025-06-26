@@ -42,7 +42,7 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${storage.database.core-db.url}
+      jdbc-url: jdbc:mysql://${storage.database.core-db.url}?serverTimezone=Asia/Seoul
       username: ${storage.database.core-db.username}
       password: ${storage.database.core-db.password}
       maximum-pool-size: 5
@@ -88,7 +88,7 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${storage.database.core-db.url}
+      jdbc-url: jdbc:mysql://${storage.database.core-db.url}?serverTimezone=Asia/Seoul
       username: ${storage.database.core-db.username}
       password: ${storage.database.core-db.password}
       maximum-pool-size: 5
@@ -117,7 +117,7 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${DB_HOST}
+      jdbc-url: jdbc:mysql://${DB_HOST}?serverTimezone=Asia/Seoul
       username: ${DB_USERNAME}
       password: ${DB_PASSWORD}
       maximum-pool-size: 5
@@ -146,7 +146,7 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${storage.database.core-db.url}
+      jdbc-url: jdbc:mysql://${storage.database.core-db.url}?serverTimezone=Asia/Seoul
       username: ${storage.database.core-db.username}
       password: ${storage.database.core-db.password}
       maximum-pool-size: 5
@@ -175,7 +175,7 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${storage.database.core-db.url}
+      jdbc-url: jdbc:mysql://${storage.database.core-db.url}?serverTimezone=Asia/Seoul
       username: ${storage.database.core-db.username}
       password: ${storage.database.core-db.password}
       maximum-pool-size: 25
