@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,12 +85,14 @@ public class MatzipService {
                 .orElseThrow(() -> new NotFoundPlaceException("맛집을 찾을 수 없습니다."));
 
         // isLiked 상태와 현재 likeCount 를 미리 조회
-        boolean isLiked = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId).isPresent();
+        Optional<PlaceLike> existingLikeOpt = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId);
+
+        boolean isLiked = existingLikeOpt.isPresent();
         long currentLikeCount = place.getLikeCount();
 
         if (isLiked) {
             // 좋아요 취소 로직
-            PlaceLike existingLike = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId).get();
+            PlaceLike existingLike = existingLikeOpt.get();
             matzipRepository.delete(existingLike);
             // 이벤트 발행 (카운트 감소는 리스너가 담당)
             eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
