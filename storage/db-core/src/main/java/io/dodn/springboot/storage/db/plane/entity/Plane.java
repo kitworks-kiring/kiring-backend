@@ -27,7 +27,7 @@ public class Plane extends BaseEntity {
     private String message;
 
     @Column(name = "is_printable")
-    private Boolean isPrintable = false;;
+    private Boolean isPrintable = false;
 
     public Plane() {
     }
