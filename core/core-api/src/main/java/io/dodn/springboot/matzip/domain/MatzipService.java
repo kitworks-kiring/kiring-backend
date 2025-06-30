@@ -3,15 +3,16 @@ package io.dodn.springboot.matzip.domain;
 import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
 import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
-import io.dodn.springboot.matzip.domain.event.PlaceLikeCancelledEvent;
-import io.dodn.springboot.matzip.domain.event.PlaceLikedEvent;
-import io.dodn.springboot.matzip.domain.model.LikeTask;
 import io.dodn.springboot.matzip.domain.model.LikeTaskQueue;
+import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
+import io.dodn.springboot.member.exception.NotFoundMemberException;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
 import io.dodn.springboot.storage.db.matzip.dto.PlaceNearbyDto;
 import io.dodn.springboot.storage.db.matzip.entity.Category;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
+import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import io.dodn.springboot.storage.db.member.MemberRepository;
+import io.dodn.springboot.storage.db.member.entity.Member;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,45 +88,79 @@ public class MatzipService {
             final Long memberId,
             final Long placeId
     ) {
-        final String likeSetKey = getLikeSetKey(placeId);
-        final String memberIdStr = String.valueOf(memberId);
+//        final String likeSetKey = getLikeSetKey(placeId);
+//        final String memberIdStr = String.valueOf(memberId);
+//
+//        boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
+//
+//        // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동)
+//        Double currentLikeCountDouble = redisTemplate.opsForZSet().score("ranking:place:live", String.valueOf(placeId));
+//        long currentLikeCount = currentLikeCountDouble != null ? currentLikeCountDouble.longValue() : 0;
+//
+//
+//        if (isCurrentlyLiked) {
+//            // "좋아요 취소" 로직
+//
+//            // 1. Redis Set에서 사용자 ID 제거
+//            redisTemplate.opsForSet().remove(likeSetKey, memberIdStr);
+//
+//            // 2. DB 업데이트를 위한 작업을 큐에 추가
+//            likeTaskQueue.addTask(new LikeTask(memberId, placeId, false));
+//
+//            // 3. 실시간 랭킹 이벤트 발행
+//            eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
+//
+//            // 4. 사용자에게 즉시 응답
+//            return new LikeToggleResponse(false, currentLikeCount - 1);
+//
+//        } else {
+//            // "좋아요" 로직
+//
+//            // 1. Redis Set에 사용자 ID 추가
+//            redisTemplate.opsForSet().add(likeSetKey, memberIdStr);
+//
+//            // 2. DB 업데이트를 위한 작업을 큐에 추가
+//            likeTaskQueue.addTask(new LikeTask(memberId, placeId, true));
+//
+//            // 3. 실시간 랭킹 이벤트 발행
+//            eventPublisher.publishEvent(new PlaceLikedEvent(placeId));
+//
+//            // 4. 사용자에게 즉시 응답
+//            return new LikeToggleResponse(true, currentLikeCount + 1);
+//        }
+        // 1. 맛집 정보를 조회하고, 없다면 예외 발생
+        Place place = matzipRepository.findByPlaceId(placeId)
+                .orElseThrow(() -> new NotFoundPlaceException("맛집을 찾을 수 없습니다."));
 
-        boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
+        // 2. 사용자의 '좋아요' 기록을 DB에서 조회
+        Optional<PlaceLike> existingLikeOpt = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId);
 
-        // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동)
-        Double currentLikeCountDouble = redisTemplate.opsForZSet().score("ranking:place:live", String.valueOf(placeId));
-        long currentLikeCount = currentLikeCountDouble != null ? currentLikeCountDouble.longValue() : 0;
-
-
-        if (isCurrentlyLiked) {
+        if (existingLikeOpt.isPresent()) {
             // "좋아요 취소" 로직
+            PlaceLike existingLike = existingLikeOpt.get();
 
-            // 1. Redis Set에서 사용자 ID 제거
-            redisTemplate.opsForSet().remove(likeSetKey, memberIdStr);
+            // 1. place_like 테이블에서 해당 row 삭제
+            matzipRepository.delete(existingLike);
 
-            // 2. DB 업데이트를 위한 작업을 큐에 추가
-            likeTaskQueue.addTask(new LikeTask(memberId, placeId, false));
+            // 2. place 테이블의 like_count 1 감소 (UPDATE 쿼리 발생)
+            place.decreaseLikeCount();
 
-            // 3. 실시간 랭킹 이벤트 발행
-            eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
-
-            // 4. 사용자에게 즉시 응답
-            return new LikeToggleResponse(false, currentLikeCount - 1);
+            // 3. 변경된 like_count를 포함하여 응답 반환
+            return new LikeToggleResponse(false, place.getLikeCount());
 
         } else {
             // "좋아요" 로직
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new NotFoundMemberException("사용자를 찾을 수 없습니다."));
 
-            // 1. Redis Set에 사용자 ID 추가
-            redisTemplate.opsForSet().add(likeSetKey, memberIdStr);
+            // 1. place_like 테이블에 새로운 row 삽입
+            matzipRepository.save(new PlaceLike(member, place));
 
-            // 2. DB 업데이트를 위한 작업을 큐에 추가
-            likeTaskQueue.addTask(new LikeTask(memberId, placeId, true));
+            // 2. place 테이블의 like_count 1 증가 (UPDATE 쿼리 발생)
+            place.increaseLikeCount();
 
-            // 3. 실시간 랭킹 이벤트 발행
-            eventPublisher.publishEvent(new PlaceLikedEvent(placeId));
-
-            // 4. 사용자에게 즉시 응답
-            return new LikeToggleResponse(true, currentLikeCount + 1);
+            // 3. 변경된 like_count를 포함하여 응답 반환
+            return new LikeToggleResponse(true, place.getLikeCount());
         }
     }
 
