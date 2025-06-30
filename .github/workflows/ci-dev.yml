@@ -1,17 +1,15 @@
-# .github/workflows/ci-dev.yml
-
-name: Deploy Spring Boot App to EC2 (for Development Branch)
+name: Deploy Spring Boot App to EC2 (Jib to Docker Hub)
 
 on:
   push:
     branches: [ "server_develop" ]
 
 jobs:
-  build-and-push-to-dockerhub-dev:
-    name: Build and Push Dev Image to Docker Hub
+  build-and-push-to-dockerhub:
+    name: Build and Push Jib Image to Docker Hub
     runs-on: ubuntu-latest
     outputs:
-      image_name: ${{ steps.define_image.outputs.image }} # ✅ 스텝의 출력을 Job의 최종 출력으로 명시
+      image_uri_latest: ${{ steps.define_image_vars.outputs.image_name_latest }} # 스텝의 출력을 잡의 출력으로 매핑
 
     steps:
       - name: Checkout code
@@ -23,57 +21,69 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-disabled: true # 캐시 사용 안 함
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }} # Docker Hub Access Token 사용 권장
 
-      - name: Define and Push Image
-        id: define_image # 스텝 ID
+      - name: Define Image Name and Tag
+        id: define_image_vars # 이 스텝에 id를 부여해야 outputs에서 참조 가능
         run: |
-          IMAGE_NAME="xoals6536/kiring-api:dev"
-          echo "Building and pushing image: $IMAGE_NAME"
-          
-          # Jib을 사용하여 빌드 및 푸시
-          ./gradlew :core:core-api:jib \
-            -Djib.to.image=$IMAGE_NAME \
-            -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev
-          
-          # ✅ 스텝의 출력으로 이미지 이름을 설정
-          echo "image=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          IMAGE_NAME="xoals6536/kiring-api" # build.gradle의 jib.to.image와 일치 (사용자명 부분)
+          IMAGE_TAG="dev" # 커밋 SHA를 태그로 사용 (또는 원하는 태그)
+          echo "DOCKER_IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_NAME_LATEST=${IMAGE_NAME}:dev" >> $GITHUB_ENV
 
-  deploy-to-ec2-dev:
-    name: Deploy to EC2 for Development
-    needs: build-and-push-to-dockerhub-dev # 이전 Job을 참조
+      - name: Build and push Jib image to Docker Hub
+        env:
+          IMAGE_TO_BUILD_LATEST: ${{ steps.define_image_vars.outputs.image_name_latest }}
+        run: |
+          echo "Building and pushing image: ${{ env.DOCKER_IMAGE_NAME_WITH_TAG }}"
+          echo "Also tagging as: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+          echo "Additional tag: dev (or ${{ env.IMAGE_TO_BUILD_LATEST }})"
+
+          # Jib Gradle 플러그인을 사용하여 이미지 빌드 및 Docker Hub로 직접 푸시
+          # Jib은 이전 docker/login-action을 통해 생성된 Docker config 파일을 사용하여 인증합니다.
+          # 멀티 모듈인 경우는 패키지 명시적으로 지정해야 합니다.
+          ./gradlew :core:core-api:jib \
+            -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
+            -Djib.to.tags=dev \
+            -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev # 필요시 프로파일 설정
+
+  deploy-to-ec2:
+    name: Deploy to EC2
+    needs: build-and-push-to-dockerhub
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/server_develop'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/server_develop'
 
     steps:
-      - name: Deploy Dev instance to EC2
+      - name: Deploy to EC2 instance
+        # 이전 잡의 outputs를 이 스텝의 환경 변수로 설정합니다.
+        env:
+          DOCKER_IMAGE_NAME_LATEST: "xoals6536/kiring-api:dev"
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            # ✅ 이전 Job의 'outputs.image_name'을 직접 셸 변수에 할당
-            IMAGE_TO_PULL="${{ needs.build-and-push-to-dockerhub-dev.outputs.image_name }}"
-            
-            # 변수가 비어있는지 다시 확인
-            if [ -z "$IMAGE_TO_PULL" ]; then
-              echo "::error::Docker image name was not passed correctly."
-              exit 1
-            fi
+            echo "Target image for deployment: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
 
-            echo "Pulling latest dev image from Docker Hub: $IMAGE_TO_PULL"
-            sudo docker pull $IMAGE_TO_PULL
+            sudo docker login -u xoals6536 -p xoals1004!!
+            echo "Pulling latest image from Docker Hub: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
+            sudo docker pull ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
-            echo "Stopping and removing old dev container (if exists)"
+            echo "Stopping and removing old container (if exists)"
             sudo docker stop kiring-app-dev || true
             sudo docker rm kiring-app-dev || true
 
-            echo "Running new dev container..."
+            echo "Running new container with image: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
             sudo docker run -d \
               -p 8081:8080 \
               --name kiring-app-dev \
@@ -83,10 +93,10 @@ jobs:
               -e DB_HOST="${{ secrets.DB_HOST }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -v /home/ubuntu/kiring-api/logs-dev:/app/logs \
+              -v /home/ubuntu/kiring-api/dev/logs:/app/logs \
               -e TZ=Asia/Seoul \
               --restart unless-stopped \
-              $IMAGE_TO_PULL
+              ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
             echo "Cleaning up old Docker images (optional)"
             sudo docker image prune -af
