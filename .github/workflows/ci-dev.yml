@@ -1,15 +1,20 @@
 # .github/workflows/ci-dev.yml
 
-name: Deploy Spring Boot App to EC2 (for Development Branch) # 워크플로우 이름 변경
+name: Deploy Spring Boot App to EC2 (for Development Branch)
 
 on:
   push:
-    branches: [ "server_develop" ]
+    branches: [ "server_develop" ] # 1. 이 워크플로우는 'server_develop' 브랜치에 푸시될 때 실행됩니다.
 
 jobs:
-  build-and-push-to-dockerhub-dev: # Job 이름 변경
+  build-and-push-to-dockerhub-dev:
     name: Build and Push Dev Image to Docker Hub
     runs-on: ubuntu-latest
+
+    # ✅ 2. [핵심] 이 Job이 끝난 후, 다른 Job에서 사용할 수 있도록 'outputs'을 명시적으로 정의합니다.
+    outputs:
+      image_name: ${{ steps.define_image_vars.outputs.image }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,24 +32,24 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Define Dev Image Name and Tag
-        id: define_image_vars
+        id: define_image_vars # 이 스텝의 id는 'define_image_vars' 입니다.
         run: |
-          IMAGE_NAME="xoals6536/kiring-api"
-          IMAGE_TAG="dev" 
-          echo "DOCKER_IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
+          # ✅ 3. [핵심] 스텝의 결과물(outputs)로 'image'라는 변수를 설정합니다.
+          # 이 값은 위 outputs 섹션에서 'image_name'이라는 최종 출력값으로 사용됩니다.
+          echo "image=xoals6536/kiring-api:dev" >> $GITHUB_OUTPUT
 
       - name: Build and push Jib image to Docker Hub for Dev
         run: |
-          echo "Building and pushing image: ${{ env.DOCKER_IMAGE_NAME_WITH_TAG }}"
+          echo "Building and pushing image: ${{ steps.define_image_vars.outputs.image }}"
           ./gradlew :core:core-api:jib \
-            -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
+            -Djib.to.image=${{ steps.define_image_vars.outputs.image }} \
             -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev
 
   deploy-to-ec2-dev:
     name: Deploy to EC2 for Development
-    needs: build-and-push-to-dockerhub-dev
+    needs: build-and-push-to-dockerhub-dev # ✅ 'build...' 잡이 끝난 후에 실행됩니다.
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/server_develop' # 브랜치 이름은 현재 상황에 맞게 수정
+    if: github.ref == 'refs/heads/server_develop'
 
     steps:
       - name: Deploy Dev instance to EC2
@@ -54,17 +59,22 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
+            # ✅ 4. [핵심] 'needs' 컨텍스트를 사용하여 이전 Job의 최종 결과물('outputs.image_name')을 가져옵니다.
+            IMAGE_TO_PULL="${{ needs.build-and-push-to-dockerhub-dev.outputs.image_name }}"
             
-            IMAGE_TO_PULL="${{ needs.build-and-push-to-dockerhub-dev.outputs.DOCKER_IMAGE_NAME_WITH_TAG }}"
-            
+            # 이 변수가 비어있는지 확인하는 디버깅 코드
+            if [ -z "$IMAGE_TO_PULL" ]; then
+              echo "::error::Docker image name is empty. Failing the workflow."
+              exit 1
+            fi
+
             echo "Pulling latest dev image from Docker Hub: $IMAGE_TO_PULL"
-            
             sudo docker pull $IMAGE_TO_PULL
-            
+
             echo "Stopping and removing old dev container (if exists)"
             sudo docker stop kiring-app-dev || true
             sudo docker rm kiring-app-dev || true
-            
+
             echo "Running new dev container..."
             sudo docker run -d \
               -p 8081:8080 \
@@ -78,7 +88,7 @@ jobs:
               -v /home/ubuntu/kiring-api/logs-dev:/app/logs \
               -e TZ=Asia/Seoul \
               --restart unless-stopped \
-              $IMAGE_TO_PULL 
-            
+              $IMAGE_TO_PULL
+
             echo "Cleaning up old Docker images (optional)"
             sudo docker image prune -af
