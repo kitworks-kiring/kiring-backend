@@ -56,8 +56,8 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
                         place.imageUrl,
                         place.category,
                         place.likeCount,
-                        Expressions.numberTemplate(Double.class, "ST_Y({0})", place.location), // latitude
                         Expressions.numberTemplate(Double.class, "ST_X({0})", place.location), // longitude
+                        Expressions.numberTemplate(Double.class, "ST_Y({0})", place.location), // latitude
                         distanceTemplate
                 ))
                 .from(place)

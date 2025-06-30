@@ -26,7 +26,6 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
 
     @Override
     public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-        log.info(">>> Custom resolver (1) is called!");
 
         OAuth2AuthorizationRequest authorizationRequest = this.defaultResolver.resolve(request);
         String registrationId = extractRegistrationIdFromRequest(request);

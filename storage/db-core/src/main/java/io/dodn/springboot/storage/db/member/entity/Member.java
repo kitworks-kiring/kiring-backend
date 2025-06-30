@@ -161,6 +161,14 @@ public class Member extends BaseEntity {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
+    private static String maskPhoneNumber(String phone) {
+        if (phone == null || phone.length() < 11) {
+            return phone;
+        }
+        // 예: 010-1234-5678 -> 010-****-5678
+        return phone.substring(0, 4) + "****" + phone.substring(8);
+    }
+
     public void updateProfile(final Member member) {
         if (member.name != null && !member.name.isBlank()) {
             this.name = member.name;
