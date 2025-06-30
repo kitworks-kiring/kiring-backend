@@ -40,33 +40,33 @@ jobs:
             -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
             -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev
 
-  deploy-to-ec2-dev: # Job 이름 변경
+  deploy-to-ec2-dev:
     name: Deploy to EC2 for Development
-    needs: build-and-push-to-dockerhub-dev # 이전 Job 이름과 맞춰줌
+    needs: build-and-push-to-dockerhub-dev
     runs-on: ubuntu-latest
-    if: github.ref_name == 'server_develop'
+    if: github.ref == 'refs/heads/server_develop' # 브랜치 이름은 현재 상황에 맞게 수정
 
     steps:
       - name: Deploy Dev instance to EC2
-        env:
-          DOCKER_IMAGE_NAME_LATEST: "xoals6536/kiring-api:dev"
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            echo "Pulling latest dev image from Docker Hub..."
-            sudo docker pull ${{ env.DOCKER_IMAGE_NAME_LATEST }}
-
+            
+            IMAGE_TO_PULL="${{ needs.build-and-push-to-dockerhub-dev.outputs.DOCKER_IMAGE_TAG }}"
+            
+            echo "Pulling latest dev image from Docker Hub: $IMAGE_TO_PULL"
+            
+            sudo docker pull $IMAGE_TO_PULL
+            
             echo "Stopping and removing old dev container (if exists)"
-            # 3. 운영용 컨테이너와 충돌하지 않도록 컨테이너 이름을 '-dev'로 변경합니다.
             sudo docker stop kiring-app-dev || true
             sudo docker rm kiring-app-dev || true
-
+            
             echo "Running new dev container..."
             sudo docker run -d \
-              # 4. 운영용 8080 포트와 충돌하지 않도록 다른 포트(예: 8081)로 매핑합니다.
               -p 8081:8080 \
               --name kiring-app-dev \
               --network kiring-net \
@@ -75,10 +75,10 @@ jobs:
               -e DB_HOST="${{ secrets.DB_HOST }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -v /home/ubuntu/kiring-api/logs-dev:/app/logs \ 
+              -v /home/ubuntu/kiring-api/logs-dev:/app/logs \
               -e TZ=Asia/Seoul \
               --restart unless-stopped \
-              ${{ env.DOCKER_IMAGE_NAME_LATEST }}
-
+              $IMAGE_TO_PULL 
+            
             echo "Cleaning up old Docker images (optional)"
             sudo docker image prune -af
