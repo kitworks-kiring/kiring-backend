@@ -48,6 +48,8 @@ jobs:
 
     steps:
       - name: Deploy Dev instance to EC2
+        env:
+          DOCKER_IMAGE_NAME_LATEST: "xoals6536/kiring-api:dev"
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -55,7 +57,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             echo "Pulling latest dev image from Docker Hub..."
-            sudo docker pull ${{ needs.build-and-push-to-dockerhub-dev.outputs.image_uri_latest }}
+            sudo docker pull ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
             echo "Stopping and removing old dev container (if exists)"
             # 3. 운영용 컨테이너와 충돌하지 않도록 컨테이너 이름을 '-dev'로 변경합니다.
@@ -76,7 +78,7 @@ jobs:
               -v /home/ubuntu/kiring-api/logs-dev:/app/logs \ 
               -e TZ=Asia/Seoul \
               --restart unless-stopped \
-              ${{ needs.build-and-push-to-dockerhub-dev.outputs.image_uri_latest }}
+              ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
             echo "Cleaning up old Docker images (optional)"
             sudo docker image prune -af
