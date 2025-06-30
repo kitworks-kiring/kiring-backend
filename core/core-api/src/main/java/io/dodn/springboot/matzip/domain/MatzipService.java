@@ -3,6 +3,7 @@ package io.dodn.springboot.matzip.domain;
 import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
 import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
+import io.dodn.springboot.matzip.domain.model.LikeTaskQueue;
 import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
 import io.dodn.springboot.member.exception.NotFoundMemberException;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
@@ -12,8 +13,10 @@ import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +31,20 @@ import java.util.stream.Collectors;
 public class MatzipService {
     private final MatzipRepository matzipRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher; // 이벤트 발행기 주입
+    private final LikeTaskQueue likeTaskQueue;
+    private final StringRedisTemplate redisTemplate; // ✅ StringRedisTemplate 주입
 
-    public MatzipService(final MatzipRepository matzipRepository, final MemberRepository memberRepository) {
+    public MatzipService(final MatzipRepository matzipRepository, final MemberRepository memberRepository, final ApplicationEventPublisher eventPublisher, final LikeTaskQueue likeTaskQueue, final StringRedisTemplate redisTemplate) {
         this.matzipRepository = matzipRepository;
         this.memberRepository = memberRepository;
+        this.eventPublisher = eventPublisher;
+        this.likeTaskQueue = likeTaskQueue;
+        this.redisTemplate = redisTemplate;
+    }
+
+    private String getLikeSetKey(Long placeId) {
+        return "place:likes:" + placeId;
     }
 
     @Transactional(readOnly = true)
@@ -75,28 +88,79 @@ public class MatzipService {
             final Long memberId,
             final Long placeId
     ) {
-        // 1. 기존 '좋아요' 기록이 있는지 확인합니다.
-        Optional<PlaceLike> existingLike = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId);
-
+//        final String likeSetKey = getLikeSetKey(placeId);
+//        final String memberIdStr = String.valueOf(memberId);
+//
+//        boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
+//
+//        // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동)
+//        Double currentLikeCountDouble = redisTemplate.opsForZSet().score("ranking:place:live", String.valueOf(placeId));
+//        long currentLikeCount = currentLikeCountDouble != null ? currentLikeCountDouble.longValue() : 0;
+//
+//
+//        if (isCurrentlyLiked) {
+//            // "좋아요 취소" 로직
+//
+//            // 1. Redis Set에서 사용자 ID 제거
+//            redisTemplate.opsForSet().remove(likeSetKey, memberIdStr);
+//
+//            // 2. DB 업데이트를 위한 작업을 큐에 추가
+//            likeTaskQueue.addTask(new LikeTask(memberId, placeId, false));
+//
+//            // 3. 실시간 랭킹 이벤트 발행
+//            eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
+//
+//            // 4. 사용자에게 즉시 응답
+//            return new LikeToggleResponse(false, currentLikeCount - 1);
+//
+//        } else {
+//            // "좋아요" 로직
+//
+//            // 1. Redis Set에 사용자 ID 추가
+//            redisTemplate.opsForSet().add(likeSetKey, memberIdStr);
+//
+//            // 2. DB 업데이트를 위한 작업을 큐에 추가
+//            likeTaskQueue.addTask(new LikeTask(memberId, placeId, true));
+//
+//            // 3. 실시간 랭킹 이벤트 발행
+//            eventPublisher.publishEvent(new PlaceLikedEvent(placeId));
+//
+//            // 4. 사용자에게 즉시 응답
+//            return new LikeToggleResponse(true, currentLikeCount + 1);
+//        }
+        // 1. 맛집 정보를 조회하고, 없다면 예외 발생
         Place place = matzipRepository.findByPlaceId(placeId)
                 .orElseThrow(() -> new NotFoundPlaceException("맛집을 찾을 수 없습니다."));
 
-        // 2. '좋아요' 기록이 있다면 -> 좋아요 취소 (삭제 및 카운트 감소)
-        if (existingLike.isPresent()) {
-            matzipRepository.delete(existingLike.get());
+        // 2. 사용자의 '좋아요' 기록을 DB에서 조회
+        Optional<PlaceLike> existingLikeOpt = matzipRepository.findByMemberIdAndPlaceId(memberId, placeId);
+
+        if (existingLikeOpt.isPresent()) {
+            // "좋아요 취소" 로직
+            PlaceLike existingLike = existingLikeOpt.get();
+
+            // 1. place_like 테이블에서 해당 row 삭제
+            matzipRepository.delete(existingLike);
+
+            // 2. place 테이블의 like_count 1 감소 (UPDATE 쿼리 발생)
             place.decreaseLikeCount();
-            return new LikeToggleResponse(false, place.getLikeCount()); // isLiked: false, 업데이트된 카운트
-        }
-        // 3. '좋아요' 기록이 없다면 -> 좋아요 처리 (삽입 및 카운트 증가)
-        else {
+
+            // 3. 변경된 like_count를 포함하여 응답 반환
+            return new LikeToggleResponse(false, place.getLikeCount());
+
+        } else {
+            // "좋아요" 로직
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundMemberException("사용자를 찾을 수 없습니다."));
 
-            PlaceLike newLike = new PlaceLike(member, place);
-            matzipRepository.save(newLike);
+            // 1. place_like 테이블에 새로운 row 삽입
+            matzipRepository.save(new PlaceLike(member, place));
 
+            // 2. place 테이블의 like_count 1 증가 (UPDATE 쿼리 발생)
             place.increaseLikeCount();
-            return new LikeToggleResponse(true, place.getLikeCount()); // isLiked: true, 업데이트된 카운트
+
+            // 3. 변경된 like_count를 포함하여 응답 반환
+            return new LikeToggleResponse(true, place.getLikeCount());
         }
     }
 
@@ -134,4 +198,26 @@ public class MatzipService {
 
         return dtoPage.map(dto -> NearbyPlaceResponse.from(dto, categoriesMap, likedPlaceIds.contains(dto.placeId())));
     }
+
+    @Transactional(readOnly = true)
+    public Page<PlaceResponse> findAllPlacesWithNPlusOne(final Long memberId, final Pageable pageable) {
+        Page<Place> places = matzipRepository.findAll(pageable);
+        List<Place> placeList = places.getContent();
+
+        if (placeList.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // N+1 문제를 의도적으로 발생시키기 위해 각 Place의 카테고리를 개별적으로 로드합니다.
+        for (Place place : placeList) {
+            place.getCategories().size(); // 이 호출이 N+1 문제를 발생시킵니다.
+        }
+
+        Set<Long> likedPlaceIds = getLikedPlaceIds(memberId, placeList);
+
+        return places.map(place ->
+                PlaceResponse.of(place, false)
+        );
+    }
+
 }
