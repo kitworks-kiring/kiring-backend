@@ -21,7 +21,6 @@
 ## 🏛️ 아키텍처
 이 프로젝트는 클라우드 네이티브 환경에 최적화된 확장 가능하고 안정적인 아키텍처를 지향합니다. AWS의 관리형 서비스를 적극 활용하여 인프라 관리 부담을 최소화하고, 모든 배포 과정을 자동화하여 개발 생산성을 극대화했습니다.
 
-![Kiring Backend Architecture](https://user-images.githubusercontent.com/11267440/229016191-8f5b5f83-e18e-49b8-a72c-f60dd1804f37.png)
 _`사용자 요청 → Route 53 → ALB (HTTPS, ACM 인증서) → EC2 (Docker) → RDS (MySQL)` 의 흐름을 가집니다._
 
 ## ✨ 주요 기능
