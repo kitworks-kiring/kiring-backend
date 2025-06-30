@@ -1,7 +1,7 @@
 # Kiring (키링) - 사내 생활 통합 플랫폼 백엔드
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/kitworks-kiring/kiring-backend/develop/public/kiring_logo.png" alt="Kiring Logo" width="150"/>
+  <img src="https://github.com/kitworks-kiring/kiring-frontend/blob/main/public/images/og-image.png" alt="Kiring Logo" width="100"/>
 </p>
 
 <h3 align="center">맛집 정보부터 팀 일정 공유, 쪽지 기능까지. 즐거운 회사 생활을 위한 모든 기능을 하나로 모은 백엔드 시스템입니다.</h3>
