@@ -44,7 +44,7 @@ jobs:
     name: Deploy to EC2 for Development
     needs: build-and-push-to-dockerhub-dev # 이전 Job 이름과 맞춰줌
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/')
+    if: github.ref_name == 'server_develop'
 
     steps:
       - name: Deploy Dev instance to EC2
