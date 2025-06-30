@@ -83,7 +83,7 @@ public class MatzipService {
         return matzipRepository.findLikedPlaceIdsByMemberAndPlaceIds(memberId, placeIds);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public LikeToggleResponse toggleLike(
             final Long memberId,
             final Long placeId
