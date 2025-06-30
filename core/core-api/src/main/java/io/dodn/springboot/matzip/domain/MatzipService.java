@@ -91,7 +91,7 @@ public class MatzipService {
 
         boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
 
-        // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동)
+        // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동 하기위해 임시로 추가)
         Double currentLikeCountDouble = redisTemplate.opsForZSet().score("ranking:place:live", String.valueOf(placeId));
         long currentLikeCount = currentLikeCountDouble != null ? currentLikeCountDouble.longValue() : 0;
 
