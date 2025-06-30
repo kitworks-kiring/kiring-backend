@@ -4,16 +4,14 @@ name: Deploy Spring Boot App to EC2 (for Development Branch)
 
 on:
   push:
-    branches: [ "server_develop" ] # 1. 이 워크플로우는 'server_develop' 브랜치에 푸시될 때 실행됩니다.
+    branches: [ "server_develop" ]
 
 jobs:
   build-and-push-to-dockerhub-dev:
     name: Build and Push Dev Image to Docker Hub
     runs-on: ubuntu-latest
-
-    # ✅ 2. [핵심] 이 Job이 끝난 후, 다른 Job에서 사용할 수 있도록 'outputs'을 명시적으로 정의합니다.
     outputs:
-      image_name: ${{ steps.define_image_vars.outputs.image }}
+      image_name: ${{ steps.define_image.outputs.image }} # ✅ 스텝의 출력을 Job의 최종 출력으로 명시
 
     steps:
       - name: Checkout code
@@ -31,23 +29,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Define Dev Image Name and Tag
-        id: define_image_vars # 이 스텝의 id는 'define_image_vars' 입니다.
+      - name: Define and Push Image
+        id: define_image # 스텝 ID
         run: |
-          # ✅ 3. [핵심] 스텝의 결과물(outputs)로 'image'라는 변수를 설정합니다.
-          # 이 값은 위 outputs 섹션에서 'image_name'이라는 최종 출력값으로 사용됩니다.
-          echo "image=xoals6536/kiring-api:dev" >> $GITHUB_OUTPUT
-
-      - name: Build and push Jib image to Docker Hub for Dev
-        run: |
-          echo "Building and pushing image: ${{ steps.define_image_vars.outputs.image }}"
+          IMAGE_NAME="xoals6536/kiring-api:dev"
+          echo "Building and pushing image: $IMAGE_NAME"
+          
+          # Jib을 사용하여 빌드 및 푸시
           ./gradlew :core:core-api:jib \
-            -Djib.to.image=${{ steps.define_image_vars.outputs.image }} \
+            -Djib.to.image=$IMAGE_NAME \
             -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev
+          
+          # ✅ 스텝의 출력으로 이미지 이름을 설정
+          echo "image=$IMAGE_NAME" >> $GITHUB_OUTPUT
 
   deploy-to-ec2-dev:
     name: Deploy to EC2 for Development
-    needs: build-and-push-to-dockerhub-dev # ✅ 'build...' 잡이 끝난 후에 실행됩니다.
+    needs: build-and-push-to-dockerhub-dev # 이전 Job을 참조
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/server_develop'
 
@@ -59,12 +57,12 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            # ✅ 4. [핵심] 'needs' 컨텍스트를 사용하여 이전 Job의 최종 결과물('outputs.image_name')을 가져옵니다.
+            # ✅ 이전 Job의 'outputs.image_name'을 직접 셸 변수에 할당
             IMAGE_TO_PULL="${{ needs.build-and-push-to-dockerhub-dev.outputs.image_name }}"
             
-            # 이 변수가 비어있는지 확인하는 디버깅 코드
+            # 변수가 비어있는지 다시 확인
             if [ -z "$IMAGE_TO_PULL" ]; then
-              echo "::error::Docker image name is empty. Failing the workflow."
+              echo "::error::Docker image name was not passed correctly."
               exit 1
             fi
 
