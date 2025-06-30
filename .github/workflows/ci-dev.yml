@@ -55,7 +55,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             
-            IMAGE_TO_PULL="${{ DOCKER_IMAGE_NAME_WITH_TAG }}"
+            IMAGE_TO_PULL="${{ needs.build-and-push-to-dockerhub-dev.outputs.DOCKER_IMAGE_NAME_WITH_TAG }}"
             
             echo "Pulling latest dev image from Docker Hub: $IMAGE_TO_PULL"
             
