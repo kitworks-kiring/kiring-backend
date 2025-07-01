@@ -24,8 +24,8 @@ public class LikeBatchDatabaseWorker {
     }
 
     // 1.5초마다 큐를 확인하여 작업을 처리
-    @Scheduled(fixedDelay = 1500)
     @Transactional
+    @Scheduled(fixedDelay = 1500)
     public void processLikeTasks() {
         // 큐에 쌓인 모든 작업을 가져온다.
         List<LikeTask> tasks = likeTaskQueue.pollTask();
