@@ -54,7 +54,7 @@ jobs:
           ./gradlew :core:core-api:jib \
             -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
             -Djib.to.tags=dev \
-#            -Djib.container.environment=SPRING_PROFILES_ACTIVE=local-dev
+            -Djib.container.environment=SPRING_PROFILES_ACTIVE=local-dev
 
   deploy-to-ec2:
     name: Deploy to EC2
