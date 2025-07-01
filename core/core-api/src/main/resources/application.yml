@@ -85,6 +85,11 @@ spring.config.activate.on-profile: local
 ---
 spring.config.activate.on-profile: local-dev
 
+kakao:
+  logout:
+    uri: https://kauth.kakao.com/oauth/logout
+    client-logout-redirect-uri: http://localhost:3000/login/callback
+
 login:
   oauth2:
     redirect-uri: http://localhost:3000/login/callback
