@@ -1,4 +1,4 @@
-import http from 'k6/http';
+import ohttp from 'k6/http';
 import { check, sleep, group } from 'k6';
 import { Trend } from 'k6/metrics';
 
