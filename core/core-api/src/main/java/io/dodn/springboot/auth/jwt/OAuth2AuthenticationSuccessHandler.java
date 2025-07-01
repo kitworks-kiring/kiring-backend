@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -33,11 +32,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final ObjectMapper objectMapper; // ★★★ ObjectMapper 주입 ★★★
     private final MemberService memberService;
 
-    @Value("${login.oauth2.redirect-uri}")
-    private String frontendTargetUrl;
+//    @Value("${login.oauth2.redirect-uri}")
+//    private String frontendTargetUrl;
 
 //    private final String frontendTargetUrl = "https://kiring.vercel.app/login/callback"; // 또는 다른 프론트엔드 경로
-//    private final String frontendTargetUrl = "http://localhost:3000/login/callback"; // 또는 다른 프론트엔드 경로
+    private final String frontendTargetUrl = "http://localhost:3000/login/callback"; // 또는 다른 프론트엔드 경로
 
     public OAuth2AuthenticationSuccessHandler(final JwtTokenProvider jwtTokenProvider, final ObjectMapper objectMapper, final MemberService memberService) {
         this.jwtTokenProvider = jwtTokenProvider;
