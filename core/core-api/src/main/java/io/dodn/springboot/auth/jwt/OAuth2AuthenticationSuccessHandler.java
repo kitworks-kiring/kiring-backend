@@ -63,7 +63,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             List<SimpleGrantedAuthority> authorities = getAuthoritiesForUser(member);
 
             final TokenInfo tokenInfo = jwtTokenProvider.generateToken(String.valueOf(member.getId()), authorities);
-            log.info("애플리케이션 JWT 발급: {}", tokenInfo);
+            log.info("frontendTargetUrl : {}", frontendTargetUrl);
 
             final String targetUrl = UriComponentsBuilder.fromUriString(frontendTargetUrl)
                             .queryParam("accessToken", tokenInfo.accessToken())
