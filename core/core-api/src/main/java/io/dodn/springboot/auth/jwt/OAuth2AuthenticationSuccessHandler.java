@@ -35,6 +35,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 //    @Value("${login.oauth2.redirect-uri}")
 //    private String frontendTargetUrl;
 
+    //TODO 프론트엔드 URL을 환경 변수로 관리하는 것이 좋습니다... 왜 안되지
 //    private final String frontendTargetUrl = "https://kiring.vercel.app/login/callback"; // 또는 다른 프론트엔드 경로
     private final String frontendTargetUrl = "http://localhost:3000/login/callback"; // 또는 다른 프론트엔드 경로
 
