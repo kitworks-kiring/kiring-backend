@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
                         url = "https://kiring.example.com"),
                 license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html")),
         servers = {
+                @Server(url = "https://dev-api.kiring.shop/", description = "OP Server"),
                 @Server(url = "https://api.kiring.shop/", description = "Development Server"),
                 @Server(url = "http://localhost:8080/", description = "Localhost Server")
         }

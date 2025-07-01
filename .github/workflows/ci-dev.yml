@@ -88,7 +88,7 @@ jobs:
               -p 8081:8080 \
               --name kiring-app-dev \
               --network kiring-net \
-              -e SPRING_PROFILES_ACTIVE=dev \
+              -e SPRING_PROFILES_ACTIVE=local-dev \
               -e SPRING_DATA_REDIS_HOST=kiring-redis \
               -e DB_HOST="${{ secrets.DB_HOST }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \

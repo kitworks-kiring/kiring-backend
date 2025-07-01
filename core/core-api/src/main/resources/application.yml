@@ -67,6 +67,9 @@ jwt:
   secret: vG8X7sFJ2jM6Q/Z7pTh5CZGq7Q1JmJj2k8Q6v5Ojlmo= # 32바이트 이상
   token-validity-in-seconds: 3600 # 1시간 (초 단위)
 
+login:
+  oauth2:
+    redirect-uri: https://kiring.vercel.app/login/callback
 
 
 # 카카오 OAuth
@@ -82,10 +85,17 @@ spring.config.activate.on-profile: local
 ---
 spring.config.activate.on-profile: local-dev
 
+login:
+  oauth2:
+    redirect-uri: http://localhost:3000/login/callback
+
 
 ---
 spring.config.activate.on-profile: dev
 
+login:
+  oauth2:
+    redirect-uri: https://kiring.vercel.app/login/callback
 
 ---
 spring.config.activate.on-profile: staging
