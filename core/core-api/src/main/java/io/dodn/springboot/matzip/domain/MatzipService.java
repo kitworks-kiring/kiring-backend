@@ -91,6 +91,7 @@ public class MatzipService {
 
         boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
 
+        // TODO 랭킹 도입 예정
         // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동 하기위해 임시로 추가)
         Double currentLikeCountDouble = redisTemplate.opsForZSet().score("ranking:place:live", String.valueOf(placeId));
         long currentLikeCount = currentLikeCountDouble != null ? currentLikeCountDouble.longValue() : 0;
@@ -105,7 +106,7 @@ public class MatzipService {
             // 2. DB 업데이트를 위한 작업을 큐에 추가
             likeTaskQueue.addTask(new LikeTask(memberId, placeId, false));
 
-            // 3. 실시간 랭킹 이벤트 발행
+            // 3. 디비 작업 (좋아요 취소 이벤트 발행)
             eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
 
             // 4. 사용자에게 즉시 응답
@@ -120,7 +121,7 @@ public class MatzipService {
             // 2. DB 업데이트를 위한 작업을 큐에 추가
             likeTaskQueue.addTask(new LikeTask(memberId, placeId, true));
 
-            // 3. 실시간 랭킹 이벤트 발행
+            // 3. 디비 작업 (좋아요 추가 이벤트 발행)
             eventPublisher.publishEvent(new PlaceLikedEvent(placeId));
 
             // 4. 사용자에게 즉시 응답
