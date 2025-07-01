@@ -1,5 +1,5 @@
 spring.application.name: core-api
-spring.profiles.active: local
+#spring.profiles.active: local
 
 spring:
   config:
