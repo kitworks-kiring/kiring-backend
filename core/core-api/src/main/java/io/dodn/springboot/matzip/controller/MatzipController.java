@@ -8,7 +8,6 @@ import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
 import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
 import io.dodn.springboot.matzip.domain.MatzipService;
-import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,7 @@ public class MatzipController implements MatzipDocs {
 
     @GetMapping("/places")
     public ApiResponse<CustomPageResponse<PlaceResponse>> getAllPlaces(
-            @Parameter(hidden = true) @LoginUser final Long memberId,
+            @LoginUser final Long memberId,
             Pageable pageable
     ) {
         Page<PlaceResponse> placeResponses = matzipService.findAllPlaces(memberId, pageable);
@@ -40,7 +39,7 @@ public class MatzipController implements MatzipDocs {
 
     @PostMapping("/toggle/like/{placeId}")
     public ApiResponse<LikeToggleResponse> toggleLikePlace(
-            @Parameter(hidden = true) @LoginUser final Long memberId,
+            @LoginUser final Long memberId,
             @PathVariable("placeId") final Long placeId
     ) {
         final LikeToggleResponse likeToggleResponse = matzipService.toggleLike(memberId, placeId);
@@ -53,7 +52,7 @@ public class MatzipController implements MatzipDocs {
             @RequestParam("lon") double longitude,
             @RequestParam(value = "categoryName", required = false) String categoryName,
             @RequestParam(value = "radius", defaultValue = "1000") int radius, // 기본 반경 1km
-            @Parameter(hidden = true) @LoginUser final Long memberId,
+            @LoginUser final Long memberId,
             Pageable pageable
     ) {
         Page<NearbyPlaceResponse> nearbyPlaces = matzipService.findNearbyPlaces(latitude, longitude, radius, categoryName ,pageable, memberId);

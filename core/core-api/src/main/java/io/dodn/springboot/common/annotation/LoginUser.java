@@ -1,10 +1,13 @@
 package io.dodn.springboot.common.annotation;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Parameter(hidden = true)
 @Target(ElementType.PARAMETER) // 이 어노테이션은 메서드의 파라미터에만 사용될 수 있음을 의미
 @Retention(RetentionPolicy.RUNTIME) // 런타임까지 어노테이션 정보 유지
 public @interface LoginUser {
