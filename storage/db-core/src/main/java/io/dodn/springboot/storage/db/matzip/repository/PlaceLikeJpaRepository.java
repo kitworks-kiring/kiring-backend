@@ -17,4 +17,6 @@ public interface PlaceLikeJpaRepository extends JpaRepository<PlaceLike, Long> {
     Set<Long> findLikedPlaceIdsByMemberAndPlaceIds(@Param("memberId") Long memberId, @Param("placeIds") List<Long> placeIds);
 
     Optional<PlaceLike> findByMemberIdAndPlaceId(Long memberId, Long placeId);
+
+    void deleteByMemberIdAndPlaceId(Long memberId, Long placeId);
 }

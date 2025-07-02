@@ -53,6 +53,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/sse/**", // SSE 관련 API 접근 허용
+                                "/stream-text", // SSE 테스트용 API 접근 허용
+                                "/realtime-ai", // SSE 테스트용 API 접근 허용
                                 "/login/oauth2/code/**",
                                 "/oauth2/**", // OAuth2 인증 관련 API 접근 허용
                                 "/api/v1/auth/refresh", // RefreshToken API 허용
