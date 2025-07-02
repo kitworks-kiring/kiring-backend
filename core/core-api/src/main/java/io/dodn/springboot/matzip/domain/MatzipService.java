@@ -100,9 +100,8 @@ public class MatzipService {
         // 사용자에게 즉시 응답
         if (!isCurrentlyLiked) {
             return new LikeToggleResponse(true);
-        } else {
-            return new LikeToggleResponse(false);
         }
+        return new LikeToggleResponse(false);
     }
 
     @Transactional(readOnly = true)
