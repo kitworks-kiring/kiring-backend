@@ -56,9 +56,9 @@ public class PlaneService {
         LocalDateTime endOfDay = today.atTime(LocalTime.MAX);   // 오늘 날짜의 23:59:59
 
         boolean alreadySentToday = planeRepository.existsBySenderAndCreatedAtBetween(sender, startOfDay, endOfDay);
-//        if (alreadySentToday) {
-//            throw new CoreException(ErrorType.ERR_1006, "하루에 한 번만 쪽지를 보낼 수 있습니다.");
-//        }
+        if (alreadySentToday) {
+            throw new CoreException(ErrorType.ERR_1006, "하루에 한 번만 쪽지를 보낼 수 있습니다.");
+        }
 
         final Plane plane = Plane.create(
                 sender,

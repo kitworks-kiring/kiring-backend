@@ -3,10 +3,7 @@ package io.dodn.springboot.matzip.domain;
 import io.dodn.springboot.matzip.controller.response.LikeToggleResponse;
 import io.dodn.springboot.matzip.controller.response.NearbyPlaceResponse;
 import io.dodn.springboot.matzip.controller.response.PlaceResponse;
-import io.dodn.springboot.matzip.domain.event.PlaceLikeCancelledEvent;
-import io.dodn.springboot.matzip.domain.event.PlaceLikedEvent;
-import io.dodn.springboot.matzip.domain.model.LikeTask;
-import io.dodn.springboot.matzip.domain.model.LikeTaskQueue;
+import io.dodn.springboot.matzip.domain.event.LikeToggledEvent;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
 import io.dodn.springboot.storage.db.matzip.dto.PlaceNearbyDto;
 import io.dodn.springboot.storage.db.matzip.entity.Category;
@@ -30,14 +27,13 @@ public class MatzipService {
     private final MatzipRepository matzipRepository;
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher eventPublisher; // 이벤트 발행기 주입
-    private final LikeTaskQueue likeTaskQueue;
+//    private final LikeTaskQueue likeTaskQueue;   스프링 표준 이벤트 발행으로 통일하기로 (커스텀 비동기 방식 x)
     private final StringRedisTemplate redisTemplate; // ✅ StringRedisTemplate 주입
 
-    public MatzipService(final MatzipRepository matzipRepository, final MemberRepository memberRepository, final ApplicationEventPublisher eventPublisher, final LikeTaskQueue likeTaskQueue, final StringRedisTemplate redisTemplate) {
+    public MatzipService(final MatzipRepository matzipRepository, final MemberRepository memberRepository, final ApplicationEventPublisher eventPublisher, final StringRedisTemplate redisTemplate) {
         this.matzipRepository = matzipRepository;
         this.memberRepository = memberRepository;
         this.eventPublisher = eventPublisher;
-        this.likeTaskQueue = likeTaskQueue;
         this.redisTemplate = redisTemplate;
     }
 
@@ -91,41 +87,21 @@ public class MatzipService {
 
         boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
 
-        // 2. Redis의 Sorted Set에서 현재 좋아요 카운트를 가져옵니다. (랭킹 기능과 연동)
-        Double currentLikeCountDouble = redisTemplate.opsForZSet().score("ranking:place:live", String.valueOf(placeId));
-        long currentLikeCount = currentLikeCountDouble != null ? currentLikeCountDouble.longValue() : 0;
 
-
-        if (isCurrentlyLiked) {
-            // "좋아요 취소" 로직
-
-            // 1. Redis Set에서 사용자 ID 제거
-            redisTemplate.opsForSet().remove(likeSetKey, memberIdStr);
-
-            // 2. DB 업데이트를 위한 작업을 큐에 추가
-            likeTaskQueue.addTask(new LikeTask(memberId, placeId, false));
-
-            // 3. 실시간 랭킹 이벤트 발행
-            eventPublisher.publishEvent(new PlaceLikeCancelledEvent(placeId));
-
-            // 4. 사용자에게 즉시 응답
-            return new LikeToggleResponse(false, currentLikeCount - 1);
-
-        } else {
-            // "좋아요" 로직
-
-            // 1. Redis Set에 사용자 ID 추가
+        if (!isCurrentlyLiked) {
             redisTemplate.opsForSet().add(likeSetKey, memberIdStr);
-
-            // 2. DB 업데이트를 위한 작업을 큐에 추가
-            likeTaskQueue.addTask(new LikeTask(memberId, placeId, true));
-
-            // 3. 실시간 랭킹 이벤트 발행
-            eventPublisher.publishEvent(new PlaceLikedEvent(placeId));
-
-            // 4. 사용자에게 즉시 응답
-            return new LikeToggleResponse(true, currentLikeCount + 1);
+        } else {
+            redisTemplate.opsForSet().remove(likeSetKey, memberIdStr);
         }
+
+        // 이벤트 발행
+        eventPublisher.publishEvent(new LikeToggledEvent(memberId, placeId, !isCurrentlyLiked));
+
+        // 사용자에게 즉시 응답
+        if (!isCurrentlyLiked) {
+            return new LikeToggleResponse(true);
+        }
+        return new LikeToggleResponse(false);
     }
 
     @Transactional(readOnly = true)

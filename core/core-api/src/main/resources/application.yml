@@ -14,9 +14,9 @@ spring:
       client:
         registration:
           kakao:
-#            client-id: 9aebe1e49481851b5f2926e02e59500a
+            #            client-id: 9aebe1e49481851b5f2926e02e59500a
             client-id: a5b6241a2b7b4a84498c605475fe2b07
-#            client-secret: zNvmJgdyPC6arlK2pGiFAfES2xRy0fKk
+            #            client-secret: zNvmJgdyPC6arlK2pGiFAfES2xRy0fKk
             client-secret: WFQrG7VFVbqU4BhVTm82Pbi6cYOw000o
             client-authentication-method: client_secret_post
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
@@ -41,13 +41,15 @@ spring:
 encrypt:
   key: vG8X7sFJ2jM6D/Z5pTh3CZGe7Q2JmJj2k7Q6v5Ojlmo= # 32바이트 이상
 
-
 kakao:
   logout:
     uri: https://kauth.kakao.com/oauth/logout
-    client-logout-redirect-uri: https://kiring.vercel.app/login/callback
-#    client-logout-redirect-uri: http://localhost:3000/login/callback
+#    client-logout-redirect-uri: https://kiring.vercel.app/login/callback
+    client-logout-redirect-uri: http://localhost:3000/login/callback
 
+login:
+  oauth2:
+    redirect-uri: http://localhost:3000/login/callback
 
 server:
   forward-headers-strategy: native
@@ -68,13 +70,6 @@ jwt:
   token-validity-in-seconds: 3600 # 1시간 (초 단위)
 
 
-
-# 카카오 OAuth
-#  KAKAO_CLIENT_ID=9aebe1e49481851b5f2926e02e59500a
-#  KAKAO_CLIENT_SECRET=
-#  NEXTAUTH_URL=http://localhost:3000/
-#  NEXTAUTH_SECRET=fE5qmH9A6bafTEF6JPE37kAPYmvYEnRArO/VDQJdaKI=
-
 ---
 spring.config.activate.on-profile: local
 
@@ -82,9 +77,23 @@ spring.config.activate.on-profile: local
 ---
 spring.config.activate.on-profile: local-dev
 
+login:
+  oauth2:
+    redirect-uri: http://localhost:3000/login/callback # local-dev일 때 이 값으로 덮어쓰기
+kakao:
+  logout:
+    client-logout-redirect-uri: http://localhost:3000/login/callback
 
 ---
 spring.config.activate.on-profile: dev
+
+login:
+  oauth2:
+    redirect-uri: https://kiring.vercel.app/login/callback
+kakao:
+  logout:
+    uri: https://kauth.kakao.com/oauth/logout
+    client-logout-redirect-uri: https://kiring.vercel.app/login/callback
 
 
 ---
@@ -94,3 +103,5 @@ spring.config.activate.on-profile: staging
 ---
 spring.config.activate.on-profile: live
 
+
+---

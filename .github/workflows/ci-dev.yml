@@ -2,7 +2,7 @@ name: Deploy Spring Boot App to EC2 (Jib to Docker Hub)
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "server_develop" ]
 
 jobs:
   build-and-push-to-dockerhub:
@@ -36,9 +36,9 @@ jobs:
         id: define_image_vars # 이 스텝에 id를 부여해야 outputs에서 참조 가능
         run: |
           IMAGE_NAME="xoals6536/kiring-api" # build.gradle의 jib.to.image와 일치 (사용자명 부분)
-          IMAGE_TAG="latest" # 커밋 SHA를 태그로 사용 (또는 원하는 태그)
+          IMAGE_TAG="dev" # 커밋 SHA를 태그로 사용 (또는 원하는 태그)
           echo "DOCKER_IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE_NAME_LATEST=${IMAGE_NAME}:latest" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_NAME_LATEST=${IMAGE_NAME}:dev" >> $GITHUB_ENV
 
       - name: Build and push Jib image to Docker Hub
         env:
@@ -46,27 +46,27 @@ jobs:
         run: |
           echo "Building and pushing image: ${{ env.DOCKER_IMAGE_NAME_WITH_TAG }}"
           echo "Also tagging as: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
-          echo "Additional tag: latest (or ${{ env.IMAGE_TO_BUILD_LATEST }})"
+          echo "Additional tag: dev (or ${{ env.IMAGE_TO_BUILD_LATEST }})"
 
           # Jib Gradle 플러그인을 사용하여 이미지 빌드 및 Docker Hub로 직접 푸시
           # Jib은 이전 docker/login-action을 통해 생성된 Docker config 파일을 사용하여 인증합니다.
           # 멀티 모듈인 경우는 패키지 명시적으로 지정해야 합니다.
           ./gradlew :core:core-api:jib \
             -Djib.to.image=${{ env.DOCKER_IMAGE_NAME_WITH_TAG }} \
-            -Djib.to.tags=latest \
-#            -Djib.container.environment=SPRING_PROFILES_ACTIVE=dev # 필요시 프로파일 설정
+            -Djib.to.tags=dev \
+            -Djib.container.environment=SPRING_PROFILES_ACTIVE=local-dev
 
   deploy-to-ec2:
     name: Deploy to EC2
     needs: build-and-push-to-dockerhub
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/server_develop'
 
     steps:
       - name: Deploy to EC2 instance
-          # 이전 잡의 outputs를 이 스텝의 환경 변수로 설정합니다.
+        # 이전 잡의 outputs를 이 스텝의 환경 변수로 설정합니다.
         env:
-          DOCKER_IMAGE_NAME_LATEST: "xoals6536/kiring-api:latest"
+          DOCKER_IMAGE_NAME_LATEST: "xoals6536/kiring-api:dev"
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -80,20 +80,20 @@ jobs:
             sudo docker pull ${{ env.DOCKER_IMAGE_NAME_LATEST }}
 
             echo "Stopping and removing old container (if exists)"
-            sudo docker stop kiring-app || true
-            sudo docker rm kiring-app || true
+            sudo docker stop kiring-app-dev || true
+            sudo docker rm kiring-app-dev || true
 
             echo "Running new container with image: ${{ env.DOCKER_IMAGE_NAME_LATEST }}"
             sudo docker run -d \
-              -p 8080:8080 \
-              --name kiring-app \
+              -p 8081:8080 \
+              --name kiring-app-dev \
               --network kiring-net \
-              -e SPRING_PROFILES_ACTIVE=dev \
+              -e SPRING_PROFILES_ACTIVE=local-dev \
               -e SPRING_DATA_REDIS_HOST=kiring-redis \
               -e DB_HOST="${{ secrets.DB_HOST }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -v /home/ubuntu/kiring-api/logs:/app/logs \
+              -v /home/ubuntu/kiring-api/dev/logs:/app/logs \
               -e TZ=Asia/Seoul \
               --restart unless-stopped \
               ${{ env.DOCKER_IMAGE_NAME_LATEST }}

@@ -1,10 +1,10 @@
 package io.dodn.springboot.matzip.domain.listener;
 
-import io.dodn.springboot.matzip.domain.event.PlaceLikeCancelledEvent;
-import io.dodn.springboot.matzip.domain.event.PlaceLikedEvent;
-import io.dodn.springboot.matzip.exception.NotFoundPlaceException;
+import io.dodn.springboot.matzip.domain.event.LikeToggledEvent;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.repository.PlaceJpaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -13,6 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class PlaceLikeCountListener {
+    private static final Logger log = LoggerFactory.getLogger(PlaceLikeCountListener.class);
     private final PlaceJpaRepository placeJpaRepository;
 
     public PlaceLikeCountListener(final PlaceJpaRepository placeJpaRepository) {
@@ -21,20 +22,26 @@ public class PlaceLikeCountListener {
 
     @Async
     @TransactionalEventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW) // 트랜잭션을 분리하여 이벤트 발행 측의 트랜잭션과 독립적으로 실행
-    public void handlePlaceLikedEvent(PlaceLikedEvent event) {
-        Place place = placeJpaRepository.findById(event.placeId())
-                .orElseThrow(() -> new NotFoundPlaceException("맛집을 찾을 수 없습니다."));
-        place.increaseLikeCount();
-    }
-
-    @Async
-    @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handlePlaceLikeCancelledEvent(PlaceLikeCancelledEvent event) {
-        Place place = placeJpaRepository.findById(event.placeId())
-                .orElseThrow(() -> new NotFoundPlaceException("맛집을 찾을 수 없습니다."));
-        place.decreaseLikeCount();
+    public void handleLikeToggledEvent(LikeToggledEvent event) {
+        try {
+            Place place = placeJpaRepository.findById(event.placeId())
+                    .orElse(null);
+
+            if (place == null) {
+                log.warn("Place not found for like count update. placeId: {}", event.placeId());
+                return;
+            }
+
+            if (event.isLikeAction()) {
+                place.increaseLikeCount();
+            } else {
+                place.decreaseLikeCount();
+            }
+            log.info("Updated like count for placeId: {}. New count: {}", event.placeId(), place.getLikeCount());
+        } catch (Exception e) {
+            log.error("Failed to process like count update event for placeId: {}", event.placeId(), e);
+        }
     }
 
 }

@@ -88,13 +88,13 @@ storage:
   datasource:
     core:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${storage.database.core-db.url}?serverTimezone=Asia/Seoul
-      username: ${storage.database.core-db.username}
-      password: ${storage.database.core-db.password}
+      jdbc-url: jdbc:mysql://${DB_HOST}?serverTimezone=Asia/Seoul
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
       maximum-pool-size: 5
-      connection-timeout: 1100
+      connection-timeout: 30000
       keepalive-time: 30000
-      validation-timeout: 1000
+      validation-timeout: 5000
       max-lifetime: 600000
       pool-name: core-db-pool
       data-source-properties:
@@ -109,7 +109,6 @@ storage:
         cacheServerConfiguration: true
         elideSetAutoCommits: true
         maintainTimeStats: false
-
 ---
 spring.config.activate.on-profile: dev
 
