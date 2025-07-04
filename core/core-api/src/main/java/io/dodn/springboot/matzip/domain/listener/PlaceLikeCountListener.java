@@ -4,7 +4,6 @@ import io.dodn.springboot.matzip.domain.event.LikeToggledEvent;
 import io.dodn.springboot.storage.db.matzip.MatzipRepository;
 import io.dodn.springboot.storage.db.matzip.entity.Place;
 import io.dodn.springboot.storage.db.matzip.entity.PlaceLike;
-import io.dodn.springboot.storage.db.matzip.repository.PlaceJpaRepository;
 import io.dodn.springboot.storage.db.member.MemberRepository;
 import io.dodn.springboot.storage.db.member.entity.Member;
 import org.slf4j.Logger;
@@ -20,12 +19,14 @@ import java.util.Optional;
 @Component
 public class PlaceLikeCountListener {
     private static final Logger log = LoggerFactory.getLogger(PlaceLikeCountListener.class);
-    private MatzipRepository matzipRepository;
-    private MemberRepository memberRepository;
+    private final MatzipRepository matzipRepository;
+    private final MemberRepository memberRepository;
 
-    public PlaceLikeCountListener(final PlaceJpaRepository placeJpaRepository) {
-        this.placeJpaRepository = placeJpaRepository;
+    public PlaceLikeCountListener(final MatzipRepository matzipRepository, final MemberRepository memberRepository) {
+        this.matzipRepository = matzipRepository;
+        this.memberRepository = memberRepository;
     }
+
 
     @Async
 //    @TransactionalEventListener    -> 메인 비지니스 트랜잭션이 커밋되거나 롤백된경우에만 작업이 필요한경우에 사용하는것

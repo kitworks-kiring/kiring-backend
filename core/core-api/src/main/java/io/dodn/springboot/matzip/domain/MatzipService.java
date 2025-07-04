@@ -77,7 +77,6 @@ public class MatzipService {
         return matzipRepository.findLikedPlaceIdsByMemberAndPlaceIds(memberId, placeIds);
     }
 
-    @Transactional
     public LikeToggleResponse toggleLike(
             final Long memberId,
             final Long placeId
