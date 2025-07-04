@@ -114,5 +114,15 @@ public class MatzipRepositoryAdapter implements MatzipRepository {
         return placeJpaRepository.findCategoryNamesMapByPlaceIds(placeIds);
     }
 
+    @Override
+    public void increaseLikeCount(final Long aLong) {
+        placeJpaRepository.increaseLikeCount(aLong);
+    }
+
+    @Override
+    public void decreaseLikeCount(final Long aLong) {
+        placeJpaRepository.decreaseLikeCount(aLong);
+    }
+
 
 }

@@ -44,4 +44,8 @@ public interface MatzipRepository {
     Page<PlaceNearbyDto> findNearbyPlaces(double latitude, double longitude, int radius, Long categoryId, Pageable pageable);
 
     Map<Long, List<String>> findCategoryNamesMapByPlaceIds(List<Long> placeIds);
+
+    void increaseLikeCount(Long aLong);
+
+    void decreaseLikeCount(Long aLong);
 }

@@ -77,7 +77,7 @@ public class MatzipService {
         return matzipRepository.findLikedPlaceIdsByMemberAndPlaceIds(memberId, placeIds);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LikeToggleResponse toggleLike(
             final Long memberId,
             final Long placeId
@@ -85,23 +85,27 @@ public class MatzipService {
         final String likeSetKey = getLikeSetKey(placeId);
         final String memberIdStr = String.valueOf(memberId);
 
+        // 1. Redis에서 현재 좋아요 상태 확인
         boolean isCurrentlyLiked = Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, memberIdStr));
 
+        boolean isLikedAction; // 이번 액션의 결과 (true: 좋아요 됨, false: 좋아요 취소됨)
 
+        // 2. Redis에 좋아요 상태 변경 (빠른 응답을 위해 먼저 처리)
         if (!isCurrentlyLiked) {
+            // 좋아요를 누른다 (Redis에 추가)
             redisTemplate.opsForSet().add(likeSetKey, memberIdStr);
+            isLikedAction = true;
         } else {
+            // 좋아요를 취소한다 (Redis에서 제거)
             redisTemplate.opsForSet().remove(likeSetKey, memberIdStr);
+            isLikedAction = false;
         }
 
-        // 이벤트 발행
-        eventPublisher.publishEvent(new LikeToggledEvent(memberId, placeId, !isCurrentlyLiked));
+        // 3. 비동기 이벤트 발행 (DB 업데이트는 백그라운드에서 처리)
+        eventPublisher.publishEvent(new LikeToggledEvent(memberId, placeId, isLikedAction));
 
-        // 사용자에게 즉시 응답
-        if (!isCurrentlyLiked) {
-            return new LikeToggleResponse(true);
-        }
-        return new LikeToggleResponse(false);
+        // 4. 사용자에게 즉시 응답 반환 (Redis 변경 결과를 기반)
+        return new LikeToggleResponse(isLikedAction);
     }
 
     @Transactional(readOnly = true)

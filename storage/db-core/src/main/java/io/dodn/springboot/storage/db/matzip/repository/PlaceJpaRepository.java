@@ -4,6 +4,7 @@ import io.dodn.springboot.storage.db.matzip.entity.Place;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -25,6 +26,14 @@ public interface PlaceJpaRepository extends JpaRepository<Place, Long>, PlaceRep
     @Query(value = "SELECT DISTINCT p FROM Place p LEFT JOIN FETCH p.categories",
             countQuery = "SELECT COUNT(p) FROM Place p")
     Page<Place> findAllWithCategories(Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Place p SET p.likeCount = p.likeCount + 1 WHERE p.id = :placeId")
+    void increaseLikeCount(Long aLong);
+
+    @Modifying // DML 쿼리임을 나타냄
+    @Query("UPDATE Place p SET p.likeCount = p.likeCount - 1 WHERE p.id = :placeId AND p.likeCount > 0")
+    void decreaseLikeCount(Long aLong);
 
 
 //    // 거리순 정렬 (기본)
