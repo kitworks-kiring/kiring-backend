@@ -46,8 +46,8 @@ storage:
       username: ${storage.database.core-db.username}
       password: ${storage.database.core-db.password}
       maximum-pool-size: 5
-      connection-timeout: 30000
-      keepalive-time: 30000
+      connection-timeout: 2000
+      keepalive-time: 0
       validation-timeout: 5000
       max-lifetime: 600000
       pool-name: core-db-pool
